@@ -1701,11 +1701,14 @@ function openDash(){
   updatePortfolioDisplay();
   startSessionCountdown();
   setTimeout(function(){ showSecurityToast(STATE.investorRef); }, 600);
+  // Show Eid particles only inside dashboard
+  for(var pi=1;pi<=8;pi++){ var pel=document.getElementById('eid-p'+pi); if(pel) pel.style.display='block'; }
   // Generate document control number
   var docEl = document.getElementById('d-docnum');
   if(docEl) docEl.textContent = 'DOC-KPC-2026-'+String(Math.floor(100000+Math.random()*900000));
 }
 function closeDash(){
+  for(var pi=1;pi<=8;pi++){ var pel=document.getElementById('eid-p'+pi); if(pel) pel.style.display='none'; }
   $('dash-ov').classList.remove('on');
   var bubble = document.getElementById('kpc-bubble');
   if(bubble) bubble.style.display = 'block';
@@ -1948,10 +1951,46 @@ function showBTC(){
   $('dep-payment').style.display='none';$('swift-err').style.display='none';
   $('btc-panel').style.display='block';dStep(3);
   var cbd=document.getElementById('btc-confirm-btn');if(cbd)cbd.style.display='flex';
-  const btcAmt=STATE.pendingAmt/BTC_RATE;
-  set('btc-amt',btcAmt.toFixed(6)+' XMR');
-  set('btc-usd-eq','≈ $'+fmt(STATE.pendingAmt)+' USD  ·  1 XMR ≈ $'+BTC_RATE.toFixed(2));
-  drawQR();
+
+  // Show loading state while getting real address from Worker
+  set('btc-amt','جارٍ التحميل... / Loading...');
+  set('btc-usd-eq','');
+
+  // If no session, use hardcoded address (offline mode)
+  if(!SESSION_TOKEN){
+    var btcAmt=STATE.pendingAmt/BTC_RATE;
+    set('btc-amt',btcAmt.toFixed(6)+' XMR');
+    set('btc-usd-eq',fmtCur(STATE.pendingAmt)+'  ·  1 XMR ≈ '+fmtCur(BTC_RATE));
+    STATE.pendingTxRef = 'KPC-INV-REF-2026-' + Math.floor(10000+Math.random()*90000);
+    drawQR();
+    return;
+  }
+
+  // Call Worker to get real address and register transaction
+  api('/get-address', { token: SESSION_TOKEN, amount_usd: STATE.pendingAmt }).then(function(res){
+    if(!res.ok){
+      // Fallback to hardcoded
+      var btcAmt=STATE.pendingAmt/BTC_RATE;
+      set('btc-amt',btcAmt.toFixed(6)+' XMR');
+      set('btc-usd-eq',fmtCur(STATE.pendingAmt)+'  ·  1 XMR ≈ '+fmtCur(BTC_RATE));
+      STATE.pendingTxRef = 'KPC-INV-REF-2026-' + Math.floor(10000+Math.random()*90000);
+      drawQR();
+      return;
+    }
+    // Set real values from Worker
+    STATE.pendingTxRef = res.tx_ref;
+    STATE.pendingBbl   = parseFloat(res.barrels);
+    var xmrAmt = parseFloat(res.amount_xmr);
+    set('btc-amt', xmrAmt.toFixed(6) + ' XMR');
+    set('btc-usd-eq', fmtCur(STATE.pendingAmt) + '  ·  1 XMR ≈ ' + fmtCur(res.xmr_rate||BTC_RATE));
+    drawQR();
+  }).catch(function(){
+    var btcAmt=STATE.pendingAmt/BTC_RATE;
+    set('btc-amt',btcAmt.toFixed(6)+' XMR');
+    set('btc-usd-eq',fmtCur(STATE.pendingAmt)+'  ·  1 XMR ≈ '+fmtCur(BTC_RATE));
+    STATE.pendingTxRef = 'KPC-INV-REF-2026-' + Math.floor(10000+Math.random()*90000);
+    drawQR();
+  });
 }
 function copyAddr(){
   navigator.clipboard.writeText(XMR_ADDR).catch(()=>{});
@@ -1979,8 +2018,11 @@ function confirmDeposit(){
   set('conf-vsub', ar ? 'يتم التحقق من البلوكتشين' : 'SCANNING MONERO BLOCKCHAIN');
 
   // Check blockchain via Worker
-  if(!SESSION_TOKEN || !STATE.pendingTxRef){
-    // No session or tx ref — show not found
+  if(!SESSION_TOKEN){
+    showPaymentNotFound(ar);
+    return;
+  }
+  if(!STATE.pendingTxRef){
     showPaymentNotFound(ar);
     return;
   }
@@ -3050,15 +3092,15 @@ function resetPinSection() {
 }
 </script>
 
-<!-- ═══ EID AL-FITR PARTICLES ═══ -->
-<div class="eid-crescent" style="top:8%;left:5%;animation-duration:8s;animation-delay:0s;">🌙</div>
-<div class="eid-crescent" style="top:15%;right:7%;animation-duration:11s;animation-delay:2s;font-size:24px;">🌙</div>
-<div class="eid-particle" style="top:12%;left:20%;animation-duration:6s;animation-delay:0.5s;">✨</div>
-<div class="eid-particle" style="top:20%;right:25%;animation-duration:7s;animation-delay:1s;">⭐</div>
-<div class="eid-particle" style="top:5%;left:50%;animation-duration:9s;animation-delay:1.5s;">✨</div>
-<div class="eid-particle" style="top:30%;left:8%;animation-duration:8s;animation-delay:2s;font-size:12px;">⭐</div>
-<div class="eid-particle" style="top:25%;right:10%;animation-duration:10s;animation-delay:0s;font-size:14px;">✨</div>
-<div class="eid-particle" style="top:40%;left:92%;animation-duration:7s;animation-delay:3s;font-size:10px;">⭐</div>
+<!-- ═══ EID AL-FITR PARTICLES — only show inside dashboard ═══ -->
+<div class="eid-crescent" id="eid-p1" style="top:8%;left:5%;animation-duration:8s;animation-delay:0s;display:none;">🌙</div>
+<div class="eid-crescent" id="eid-p2" style="top:15%;right:7%;animation-duration:11s;animation-delay:2s;font-size:24px;display:none;">🌙</div>
+<div class="eid-particle" id="eid-p3" style="top:12%;left:20%;animation-duration:6s;animation-delay:0.5s;display:none;">✨</div>
+<div class="eid-particle" id="eid-p4" style="top:20%;right:25%;animation-duration:7s;animation-delay:1s;display:none;">⭐</div>
+<div class="eid-particle" id="eid-p5" style="top:5%;left:50%;animation-duration:9s;animation-delay:1.5s;display:none;">✨</div>
+<div class="eid-particle" id="eid-p6" style="top:30%;left:8%;animation-duration:8s;animation-delay:2s;font-size:12px;display:none;">⭐</div>
+<div class="eid-particle" id="eid-p7" style="top:25%;right:10%;animation-duration:10s;animation-delay:0s;font-size:14px;display:none;">✨</div>
+<div class="eid-particle" id="eid-p8" style="top:40%;left:92%;animation-duration:7s;animation-delay:3s;font-size:10px;display:none;">⭐</div>
 
 <!-- EID TOAST -->
 <div id="eid-toast" style="display:none;position:fixed;bottom:140px;left:50%;transform:translateX(-50%);z-index:9999999;background:linear-gradient(135deg,#0d0a00,#1c1400);border:1px solid rgba(200,168,75,0.5);border-radius:12px;padding:12px 20px;box-shadow:0 8px 32px rgba(200,168,75,0.2);min-width:260px;max-width:320px;text-align:center;">
