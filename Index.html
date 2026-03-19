@@ -3078,7 +3078,7 @@ function onLoginSuccess(res, accVal){
   if(si) si.textContent = accVal;
 
   applyLang();
-  showTab('about');
+  showTab('overview');
   if(!STATE.chartsBuilt){ try{ buildCharts(); STATE.chartsBuilt=true; } catch(e){} }
   updatePortfolioDisplay();
   startSessionCountdown();
@@ -3096,7 +3096,7 @@ function onOfflineLogin(accVal){
   $('alert-ov').classList.remove('on');
   $('dash-ov').classList.add('on');
   applyLang();
-  showTab('about');
+  showTab('overview');
   if(!STATE.chartsBuilt){ try{ buildCharts(); STATE.chartsBuilt=true; } catch(e){} }
   updatePortfolioDisplay();
   startSessionCountdown();
