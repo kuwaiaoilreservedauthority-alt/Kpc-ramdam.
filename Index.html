@@ -869,7 +869,45 @@ button:focus,button:active{outline:none;box-shadow:none;}
       </div>
 
       <!-- SUPPORT TAB -->
-      <div id="support-content" style="display:none">
+      <div id="about-content" class="tab-content" style="display:none;padding:16px;">
+          <div style="border-radius:12px;overflow:hidden;margin-bottom:16px;position:relative;background:#111;height:200px;display:flex;align-items:center;justify-content:center;">
+            <div style="text-align:center;">
+              <div style="font-size:40px;margin-bottom:8px;">🌙</div>
+              <div style="font-family:'Outfit',sans-serif;font-size:28px;font-weight:800;color:#fff;letter-spacing:3px;">KORA</div>
+              <div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(200,168,75,0.7);letter-spacing:2px;margin-top:4px;">KUWAIT OIL RESERVED AUTHORITIES</div>
+            </div>
+          </div>
+          <div class="d-card" style="margin-bottom:12px;">
+            <div class="d-card-t" id="about-what-lbl">ما هو برنامج KORA الاستثماري؟</div>
+            <p style="font-family:'Tajawal',sans-serif;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;margin-top:8px;" id="about-what-txt">KORA Investment Programme هو برنامج حكومي سري تابع لمؤسسة البترول الكويتية، يتيح للمستثمرين المعتمدين اقتناء تخصيصات نفطية بأسعار ما قبل الحرب.</p>
+          </div>
+          <div class="d-card" style="margin-bottom:12px;">
+            <div class="d-card-t" id="about-how-lbl">كيف يعمل البرنامج؟</div>
+            <div style="margin-top:10px;display:flex;flex-direction:column;gap:10px;">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div style="width:28px;height:28px;border-radius:50%;background:rgba(204,0,0,0.2);border:1px solid rgba(204,0,0,0.5);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:11px;color:#cc0000;font-weight:700;flex-shrink:0;">1</div>
+                <div style="font-family:'Tajawal',sans-serif;font-size:12px;color:rgba(255,255,255,0.65);line-height:1.7;" id="about-step1">التحقق من الهوية وإصدار رقم اعتماد KPC-ACC</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div style="width:28px;height:28px;border-radius:50%;background:rgba(204,0,0,0.2);border:1px solid rgba(204,0,0,0.5);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:11px;color:#cc0000;font-weight:700;flex-shrink:0;">2</div>
+                <div style="font-family:'Tajawal',sans-serif;font-size:12px;color:rgba(255,255,255,0.65);line-height:1.7;" id="about-step2">اقتناء تخصيص نفطي بسعر KWD 22.26/برميل</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div style="width:28px;height:28px;border-radius:50%;background:rgba(204,0,0,0.2);border:1px solid rgba(204,0,0,0.5);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:11px;color:#cc0000;font-weight:700;flex-shrink:0;">3</div>
+                <div style="font-family:'Tajawal',sans-serif;font-size:12px;color:rgba(255,255,255,0.65);line-height:1.7;" id="about-step3">ضمان حكومي بإعادة الشراء بسعر KWD 72.17/برميل بعد الحرب</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div style="width:28px;height:28px;border-radius:50%;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;color:#4ade80;font-weight:700;flex-shrink:0;">✓</div>
+                <div style="font-family:'Tajawal',sans-serif;font-size:12px;color:rgba(255,255,255,0.65);line-height:1.7;" id="about-step4">عائد مضمون +224.2% بموجب مرسوم أميري</div>
+              </div>
+            </div>
+          </div>
+          <div style="background:rgba(200,168,75,0.05);border:1px solid rgba(200,168,75,0.15);border-radius:10px;padding:12px;">
+            <div style="font-family:'DM Mono',monospace;font-size:8px;color:rgba(200,168,75,0.5);letter-spacing:2px;margin-bottom:6px;">LEGAL FRAMEWORK</div>
+            <div style="font-family:'Tajawal',sans-serif;font-size:11px;color:rgba(255,255,255,0.45);line-height:1.8;" id="about-legal">KEEMA-2026 · KIS-2026-004 · HAWRF-2026</div>
+          </div>
+        </div>
+<div id="support-content" style="display:none">
         <div style="background:linear-gradient(135deg,#001840,#002a60);border:1px solid rgba(0,85,204,0.28);border-radius:12px;padding:12px 15px;margin-bottom:12px;display:flex;align-items:center;gap:11px;">
           <div style="width:40px;height:40px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,#7a5c00,#c8a84b);display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:#0d0d0d;">L</div>
           <div style="flex:1;">
@@ -1805,9 +1843,9 @@ function showTab(tab){
     'overview':'ov-content',
     'market':'mkt-content',
     'portfolio':'port-content',
-    'certs':'cert-content',
+    'certs':'certs-content',
     'about':'about-content',
-    'support':'supp-content'
+    'support':'support-content'
   };
   var tMap={
     'overview':'tab-overview',
