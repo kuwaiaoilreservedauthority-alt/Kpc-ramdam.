@@ -648,6 +648,7 @@ button:focus,button:active{outline:none;box-shadow:none;}
       <div class="d-tab" id="tab-market" onclick="showTab('market')">السوق</div>
       <div class="d-tab" id="tab-portfolio" onclick="showTab('portfolio')">محفظتي</div>
       <div class="d-tab" id="tab-certs" onclick="showTab('certs')">الشهادات</div>
+      <div class="d-tab" id="tab-about" onclick="showTab('about')"><span id="tab-about-lbl">عن البرنامج</span></div>
       <div class="d-tab" id="tab-support" onclick="showTab('support')">الدعم</div>
     </div>
 
@@ -1786,7 +1787,16 @@ function updateCurrencyDisplay(){
 }
 
 
-function toggleLang(){STATE.lang=STATE.lang==='ar'?'en':'ar';STATE.chartsBuilt=false;applyLang();}
+function toggleLang(){
+  STATE.lang=STATE.lang==='ar'?'en':'ar';
+  STATE.chartsBuilt=false;
+  // Save language choice
+  try{ localStorage.setItem('kora_lang', STATE.lang); }catch(e){}
+  applyLang();
+  // Update alert lang button
+  var btn=document.getElementById('alert-lang-btn');
+  if(btn) btn.textContent = STATE.lang==='ar' ? '🌐 English' : '🌐 العربية';
+}
 var dov=$('dash-ov');if(dov)dov.addEventListener('click',function(e){if(e.target===dov)closeDash();});
 
 // ═══════════ TABS ═══════════
