@@ -1790,19 +1790,33 @@ function updateCurrencyDisplay(){
 function toggleLang(){
   STATE.lang=STATE.lang==='ar'?'en':'ar';
   STATE.chartsBuilt=false;
-  // Save language choice
   try{ localStorage.setItem('kora_lang', STATE.lang); }catch(e){}
   applyLang();
-  // Update alert lang button
   var btn=document.getElementById('alert-lang-btn');
   if(btn) btn.textContent = STATE.lang==='ar' ? '🌐 English' : '🌐 العربية';
+  var btn2=document.getElementById('lang-btn');
+  if(btn2) btn2.textContent = STATE.lang==='ar' ? 'English' : 'العربية';
 }
 var dov=$('dash-ov');if(dov)dov.addEventListener('click',function(e){if(e.target===dov)closeDash();});
 
 // ═══════════ TABS ═══════════
 function showTab(tab){
-  var cMap={'overview':'ov-content','market':'mkt-content','portfolio':'port-content','certs':'certs-content','support':'support-content'};
-  var tMap={'overview':'tab-overview','market':'tab-market','portfolio':'tab-portfolio','certs':'tab-certs','support':'tab-support'};
+  var cMap={
+    'overview':'ov-content',
+    'market':'mkt-content',
+    'portfolio':'port-content',
+    'certs':'cert-content',
+    'about':'about-content',
+    'support':'supp-content'
+  };
+  var tMap={
+    'overview':'tab-overview',
+    'market':'tab-market',
+    'portfolio':'tab-portfolio',
+    'certs':'tab-certs',
+    'about':'tab-about',
+    'support':'tab-support'
+  };
   var keys=Object.keys(cMap);
   for(var ki=0;ki<keys.length;ki++){
     var k=keys[ki];
@@ -1815,6 +1829,7 @@ function showTab(tab){
   if(tab==='portfolio')updatePortfolioDisplay();
   if(tab==='certs')renderCerts();
   if(tab==='support')initTabChat();
+  if(tab==='about')buildAbout();
 }
 
 // ═══════════ PORTFOLIO ═══════════
