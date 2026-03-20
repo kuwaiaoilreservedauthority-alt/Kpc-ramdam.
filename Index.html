@@ -3050,7 +3050,7 @@ function onLoginSuccess(res, accVal){
   STATE.balance = parseFloat(res.balance || 0);
   STATE.barrels = parseFloat(res.barrels || 0);
   // Don't overwrite language - user's selection on login screen takes priority
-  // STATE.lang = res.lang || STATE.lang; // removed
+  // STATE.lang = res.lang || STATE.lang; // disabled // removed
 
   // Load transactions
   if(res.transactions && res.transactions.length > 0){
