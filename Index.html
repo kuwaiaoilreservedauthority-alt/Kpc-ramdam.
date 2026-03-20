@@ -145,7 +145,7 @@ body{font-family:'Tajawal',sans-serif;background:url('data:image/jpeg;base64,/9j
 
 /* ── DASHBOARD ── */
 #dash-ov{background:rgba(0,0,0,0.82);backdrop-filter:blur(8px);align-items:stretch!important;justify-content:stretch!important;padding:0!important;}
-#dash-ov.on #dash-modal{visibility:visible;}
+#dash-ov.on #dash-modal{visibility:visible;overflow:hidden;}
 #dash-modal{
   width:100%;max-width:100%;height:100vh;max-height:100vh;
   display:flex;flex-direction:column;
@@ -155,6 +155,7 @@ body{font-family:'Tajawal',sans-serif;background:url('data:image/jpeg;base64,/9j
   overflow:hidden;
   visibility:hidden;
 }
+#dash-modal.visible{overflow:visible;}
 /* header */
 .dh{padding:10px 14px 10px 6px;background:linear-gradient(90deg,#0c0c0c,#1a0000,#0c0c0c);border-bottom:2px solid var(--red);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
 .dh-left{display:flex;align-items:center;gap:8px;flex:1;min-width:0;overflow:hidden;}
@@ -174,7 +175,7 @@ body{font-family:'Tajawal',sans-serif;background:url('data:image/jpeg;base64,/9j
 .d-tab:hover{color:#fff;}
 .d-tab.active{color:#fff;border-bottom-color:var(--red);}
 /* body scroll */
-.d-body{overflow-y:auto;flex:1;padding:18px 20px 80px;scrollbar-width:thin;scrollbar-color:rgba(204,0,0,0.2) transparent;}
+.d-body{overflow-y:auto;flex:1;min-height:0;padding:18px 20px 24px;scrollbar-width:thin;scrollbar-color:rgba(204,0,0,0.2) transparent;}
 .d-body::-webkit-scrollbar{width:4px;}
 .d-body::-webkit-scrollbar-thumb{background:rgba(204,0,0,0.2);border-radius:4px;}
 /* status bar */
@@ -263,7 +264,7 @@ body{font-family:'Tajawal',sans-serif;background:url('data:image/jpeg;base64,/9j
 .an{color:rgba(255,255,255,0.5);font-size:11.5px;}
 .ap{font-family:'DM Mono',monospace;color:var(--muted);font-size:11.5px;}
 /* footer */
-.d-footer{padding:10px 20px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:9.5px;color:var(--muted);background:#141414;flex-shrink:0;position:relative;z-index:1;}
+.d-footer{padding:10px 20px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:9.5px;color:var(--muted);background:#141414;flex-shrink:0;position:sticky;bottom:0;z-index:10;}
 .d-fbrand{font-family:'Tajawal',sans-serif;font-size:13px;color:#ffffff;font-weight:700;}
 .d-conf{display:flex;align-items:center;gap:5px;background:rgba(74,222,128,0.07);border:1px solid rgba(74,222,128,0.18);padding:3px 9px;border-radius:4px;color:rgba(74,222,128,0.8);font-size:8.5px;letter-spacing:1.5px;font-family:'DM Mono',monospace;}
 .d-conf svg{width:10px;height:10px;}
@@ -644,7 +645,7 @@ button:focus,button:active{outline:none;box-shadow:none;}
       <div class="d-tab active" id="tab-overview" onclick="showTab('overview')">نظرة عامة</div>
       <div class="d-tab" id="tab-market" onclick="showTab('market')">السوق</div>
       <div class="d-tab" id="tab-portfolio" onclick="showTab('portfolio')">محفظتي</div>
-      <div class="d-tab" id="tab-certs" onclick="showTab('certs')"><span id="tab-certs-lbl">الشهادات</span><span id="certs-dot" style="display:none;width:7px;height:7px;background:#cc0000;border-radius:50%;margin-right:3px;animation:dotPulse 1.4s infinite;vertical-align:middle;"></span></div>
+      <div class="d-tab" id="tab-certs" onclick="showTab('certs')"><span id="tab-certs-lbl">الشهادات</span><span id="certs-dot" style="width:7px;height:7px;background:#cc0000;border-radius:50%;margin-right:3px;animation:dotPulse 1.4s infinite;vertical-align:middle;display:none;"></span></div>
       <div class="d-tab" id="tab-about" onclick="showTab('about')"><span id="tab-about-lbl">عن البرنامج</span><span id="about-dot" style="display:none;width:7px;height:7px;background:#cc0000;border-radius:50%;margin-right:3px;animation:dotPulse 1.4s infinite;vertical-align:middle;display:inline-block;"></span></div>
       <div class="d-tab" id="tab-support" onclick="showTab('support')">الدعم</div>
     </div>
