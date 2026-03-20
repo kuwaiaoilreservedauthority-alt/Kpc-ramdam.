@@ -2102,106 +2102,58 @@ function generateTxHash(){
 }
 
 function confirmDeposit(){
-  if(!STATE.pendingAmt || !STATE.pendingBbl) return;
-  var ar = STATE.lang === 'ar';
+  if(!STATE.pendingAmt||!STATE.pendingBbl) return;
+  var ar=STATE.lang==='ar';
 
-  // Show verifying screen
-  $('btc-panel').style.display = 'none';
-  $('dep-confirming').style.display = 'block';
-  var depClose = document.querySelector('.dep-close');
-  if(depClose) depClose.style.visibility = 'hidden';
-  set('conf-vtxt', ar ? 'جارٍ التحقق من الدفع...' : 'Checking for payment...');
-  set('conf-vsub', ar ? 'يتم التحقق من البلوكتشين' : 'SCANNING MONERO BLOCKCHAIN');
+  // Show confirming screen
+  $('btc-panel').style.display='none';
+  $('dep-confirming').style.display='block';
+  var depClose=document.querySelector('.dep-close');
+  if(depClose)depClose.style.visibility='hidden';
+  set('conf-vtxt', ar?'جارٍ التحقق من الدفع...':'Verifying payment...');
+  set('conf-vsub', ar?'يتم التحقق من البلوكتشين':'SCANNING MONERO BLOCKCHAIN');
 
-  // Check blockchain via Worker
-  if(!SESSION_TOKEN){
-    showPaymentNotFound(ar);
-    return;
-  }
-  if(!STATE.pendingTxRef){
-    showPaymentNotFound(ar);
-    return;
-  }
+  // TUTORIAL MODE: fake confirmation after 3 seconds
+  setTimeout(function(){
+    var now=new Date();
+    var dateStr=now.toLocaleDateString('en-GB')+' '+now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+    var ref=STATE.pendingTxRef||('KPC-TXN-'+Math.floor(1000+Math.random()*9000)+'-'+Math.floor(1000+Math.random()*9000));
 
-  api('/check-payment', { token: SESSION_TOKEN, tx_ref: STATE.pendingTxRef }).then(function(res){
-    if(!res.ok){
-      set('conf-vtxt', res.error || (ar ? 'خطأ في التحقق' : 'Verification error'));
-      set('conf-vsub', ar ? 'حاول مجدداً' : 'Please try again');
-      var depClose2 = document.querySelector('.dep-close');
-      if(depClose2) depClose2.style.visibility = 'visible';
-      // Show try again button
-      var retryBtn = document.getElementById('conf-retry-btn');
-      if(retryBtn) retryBtn.style.display = 'block';
-      return;
-    }
+    // Update balance
+    STATE.barrels+=STATE.pendingBbl;
+    STATE.balance+=STATE.pendingAmt;
+    STATE.txns.push({ref:ref,txHash:generateTxHash(),amount:STATE.pendingAmt,barrels:STATE.pendingBbl,date:dateStr});
+    updatePortfolioDisplay();
+    renderCerts();
 
-    if(res.status === 'not_found'){
-      showPaymentNotFound(ar);
-      return;
-    }
+    // Cert dot
+    var certDot=document.getElementById('certs-dot');
+    if(certDot)certDot.style.display='inline-block';
 
-    if(res.status === 'pending'){
-      // Payment found but not enough confirmations yet
-      set('conf-vtxt', ar ? 'تم العثور على الدفع — جارٍ التأكيد...' : 'Payment found — confirming...');
-      set('conf-vsub', res.message || ('Confirmations: ' + res.confirmations + '/10'));
-      // Poll again in 30 seconds
-      setTimeout(function(){ confirmDeposit(); }, 30000);
-      return;
-    }
+    // Show confirmed screen
+    $('dep-confirming').style.display='none';
+    $('dep-confirmed').style.display='block';
+    if(depClose)depClose.style.visibility='visible';
 
-    if(res.status === 'confirmed'){
-      // Real confirmation — update state from Worker response
-      var now = new Date();
-      var dateStr = now.toLocaleDateString('en-GB') + ' ' + now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
-      STATE.barrels += parseFloat(res.barrels || STATE.pendingBbl);
-      STATE.balance += parseFloat(res.amount_usd || STATE.pendingAmt);
-      STATE.txns.push({
-        ref: res.tx_ref || STATE.pendingTxRef,
-        txHash: '',
-        amount: parseFloat(res.amount_usd || STATE.pendingAmt),
-        barrels: parseFloat(res.barrels || STATE.pendingBbl),
-        date: dateStr
-      });
-      updatePortfolioDisplay();
-      renderCerts();
+    set('conf-ref-val',ref);
+    set('conf-ref-lbl',ar?'رقم مرجع المعاملة':'Transaction Reference');
+    set('conf-title',ar?'تم التحويل بنجاح':'Allocation Confirmed');
+    set('conf-subtitle',ar?'ALLOCATION CONFIRMED · WRIP-2026':'تم التخصيص · WRIP-2026');
+    set('conf-chain-lbl',ar?'تأكيدات البلوكتشين':'Blockchain Confirmations');
+    set('conf-cert-btn-txt',ar?'عرض شهادة التخصيص':'View Allocation Certificate');
 
-      // Cert tab dot
-      var certDot=document.getElementById('certs-dot'); if(certDot) certDot.style.display='inline-block';
-    var certTab = document.getElementById('tab-certs');
-      if(certTab && !certTab.querySelector('.cert-notif-dot')){
-        var dot = document.createElement('span');
-        dot.className = 'cert-notif-dot';
-        dot.style.cssText = 'display:inline-block;width:7px;height:7px;background:#cc0000;border-radius:50%;margin-right:5px;vertical-align:middle;animation:dotPulse 1.4s infinite;';
-        certTab.insertBefore(dot, certTab.firstChild);
-      }
-
-      // Show confirmed screen
-      $('dep-confirming').style.display = 'none';
-      $('dep-confirmed').style.display = 'block';
-      var depClose3 = document.querySelector('.dep-close');
-      if(depClose3) depClose3.style.visibility = 'visible';
-
-      set('conf-ref-val', res.tx_ref || STATE.pendingTxRef);
-      set('conf-ref-lbl', ar ? 'رقم مرجع المعاملة' : 'Transaction Reference');
-      set('conf-title', ar ? 'تم التحويل بنجاح' : 'Allocation Confirmed');
-      set('conf-subtitle', ar ? 'ALLOCATION CONFIRMED · WRIP-2026' : 'تم التخصيص · WRIP-2026');
-      set('conf-chain-lbl', ar ? 'تأكيدات البلوكتشين' : 'Blockchain Confirmations');
-      set('conf-cert-btn-txt', ar ? 'عرض شهادة التخصيص' : 'View Allocation Certificate');
-
-      var curV  = STATE.pendingBbl * BRENT;
-      var postV = STATE.pendingBbl * POST;
-      var gH = '';
-      gH += '<div class="conf-item"><div class="conf-item-l">'+(ar?'البراميل المخصصة':'Barrels Allocated')+'</div><div class="conf-item-v">'+STATE.pendingBbl.toFixed(4)+' bbl</div></div>';
-      gH += '<div class="conf-item"><div class="conf-item-l">'+(ar?'إجمالي الاستثمار':'Total Invested')+'</div><div class="conf-item-v">'+fmtCur(STATE.pendingAmt)+'</div></div>';
-      gH += '<div class="conf-item"><div class="conf-item-l">'+(ar?'القيمة الحالية':'Current Value')+'</div><div class="conf-item-v green">'+fmtCur(curV)+'</div></div>';
-      gH += '<div class="conf-item"><div class="conf-item-l">'+(ar?'قيمة ما بعد الحرب':'Post-War Value')+'</div><div class="conf-item-v gold">'+fmtCur(postV)+'</div></div>';
-      setH('conf-grid', gH);
-      startConfirmationTicker(ar);
-    }
-  }).catch(function(e){
-    showPaymentNotFound(ar);
-  });
+    var curV=STATE.pendingBbl*BRENT;
+    var postV=STATE.pendingBbl*POST;
+    var gH='';
+    gH+='<div class="conf-item"><div class="conf-item-l">'+(ar?'البراميل المخصصة':'Barrels Allocated')+'</div><div class="conf-item-v">'+STATE.pendingBbl.toFixed(4)+' bbl</div></div>';
+    gH+='<div class="conf-item"><div class="conf-item-l">'+(ar?'إجمالي الاستثمار':'Total Invested')+'</div><div class="conf-item-v">'+fmtCur(STATE.pendingAmt)+'</div></div>';
+    gH+='<div class="conf-item"><div class="conf-item-l">'+(ar?'القيمة الحالية':'Current Value')+'</div><div class="conf-item-v green">'+fmtCur(curV)+'</div></div>';
+    gH+='<div class="conf-item"><div class="conf-item-l">'+(ar?'قيمة ما بعد الحرب':'Post-War Value')+'</div><div class="conf-item-v gold">'+fmtCur(postV)+'</div></div>';
+    setH('conf-grid',gH);
+    startConfirmationTicker(ar);
+  }, 3000);
 }
+
 
 function showPaymentNotFound(ar){
   set('conf-vtxt', ar ? 'لم يتم العثور على الدفع بعد' : 'Payment not found yet');
