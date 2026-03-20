@@ -174,7 +174,7 @@ body{font-family:'Tajawal',sans-serif;background:url('data:image/jpeg;base64,/9j
 .d-tab:hover{color:#fff;}
 .d-tab.active{color:#fff;border-bottom-color:var(--red);}
 /* body scroll */
-.d-body{overflow-y:auto;flex:1;padding:18px 20px 24px;scrollbar-width:thin;scrollbar-color:rgba(204,0,0,0.2) transparent;}
+.d-body{overflow-y:auto;flex:1;padding:18px 20px 80px;scrollbar-width:thin;scrollbar-color:rgba(204,0,0,0.2) transparent;}
 .d-body::-webkit-scrollbar{width:4px;}
 .d-body::-webkit-scrollbar-thumb{background:rgba(204,0,0,0.2);border-radius:4px;}
 /* status bar */
@@ -1162,9 +1162,7 @@ button:focus,button:active{outline:none;box-shadow:none;}
           <div style="font-family:'DM Mono',monospace;font-size:8px;color:rgba(200,168,75,0.4);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;">VERIFY CERTIFICATE</div>
           <div id="cert-verify-url" style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(200,168,75,0.6);">kpc.com.kw/verify/—</div>
         </div>
-        <div style="text-align:center;margin:8px 0;padding:6px 12px;background:linear-gradient(90deg,rgba(200,168,75,0.05),rgba(200,168,75,0.1),rgba(200,168,75,0.05));border-top:1px solid rgba(200,168,75,0.2);border-bottom:1px solid rgba(200,168,75,0.2);">
-          <span style="font-family:'Tajawal',sans-serif;font-size:11px;color:rgba(200,168,75,0.7);letter-spacing:1px;">🌙 &nbsp; صدر بمناسبة عيد الفطر المبارك ١٤٤٧ &nbsp; · &nbsp; Issued on Eid Al-Fitr 1447 AH &nbsp; 🌙</span>
-        </div>
+        
         <div class="cert-fn" id="cert-fn"></div>
       <div style="display:flex;gap:9px;margin-bottom:10px;">
         <button class="cert-close" onclick="printCert()" id="cert-print-btn" style="background:rgba(200,168,75,0.06);flex:1;display:flex;align-items:center;justify-content:center;gap:7px;">
