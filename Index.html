@@ -1635,6 +1635,7 @@ function applyLang(){
   // market head
   // mkt-head updated by buildMarketBody
   try{ buildMarketBody(t); } catch(e){ console.log("buildMarketBody err:",e); }
+  try{ buildAbout(); } catch(e){}
   if(!STATE.chartsBuilt && document.getElementById('line-chart')){buildCharts();STATE.chartsBuilt=true;}
 }
 
@@ -3209,7 +3210,7 @@ function buildAbout(){
   var tabLbl=document.getElementById('tab-about-lbl');
   if(tabLbl) tabLbl.textContent=ar?'عن البرنامج':'About';
   // Leader
-  set('about-leader-name','الشيخ نواف سعود الصباح');
+  set('about-leader-name', ar ? 'الشيخ نواف سعود الصباح' : 'Sheikh Nawaf Saud Al-Sabah');
   set('about-leader-title',ar?'الرئيس التنفيذي · مؤسسة البترول الكويتية':'CEO · Kuwait Petroleum Corporation');
   set('about-leader-sub',ar?'مؤسس هيئة الاحتياطيات النفطية الكويتية (KORA)':'Founder · Kuwait Oil Reserved Authorities (KORA)');
   // What is KORA
