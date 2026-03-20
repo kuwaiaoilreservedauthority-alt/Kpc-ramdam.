@@ -1210,9 +1210,6 @@ async function api(route, body) {
   }
 }
 
-// ── Restore language ──
-try{var _sl=localStorage.getItem('kora_lang');if(_sl)STATE.lang=_sl;}catch(e){}
-
 // ═══════════ CONSTANTS ═══════════
 const PRE=72.40, POST=234.80, BTC_RATE=67842.50, USD_KWD=0.3074;
 const PRE_KWD=(PRE*USD_KWD).toFixed(2), POST_KWD=(POST*USD_KWD).toFixed(2);
@@ -1222,6 +1219,10 @@ const BTC_ADDR=XMR_ADDR;
 let BRENT=94.18, WTI=90.04;
 
 const STATE={lang:'ar',currency:'KWD',barrels:0,balance:0,txns:[],pendingAmt:0,pendingBbl:0,chartsBuilt:false,investorRef:''};
+// Restore language + session immediately after STATE is declared
+try{var _sl=localStorage.getItem('kora_lang');if(_sl){STATE.lang=_sl;}}catch(e){}
+try{var _st=sessionStorage.getItem('kora_token');if(_st){SESSION_TOKEN=_st;}}catch(e){}
+try{var _sa=sessionStorage.getItem('kora_acc');if(_sa){STATE.investorRef=_sa;}}catch(e){}
 const CURRENCIES={KWD:{sym:'KWD',rate:USD_KWD,decimals:3},USD:{sym:'USD',rate:1,decimals:2}};
 function CUR(){return CURRENCIES[STATE.currency];}
 function fmtCur(usdAmount){var c=CUR();return c.sym+' '+fmt(usdAmount*c.rate);}
@@ -1880,7 +1881,8 @@ function showTab(tab){
   if(tab==='portfolio')updatePortfolioDisplay();
   if(tab==='certs')renderCerts();
   if(tab==='support')initTabChat();
-  if(tab==='about')buildAbout();
+  if(tab==='about'){buildAbout();removeTabDot('tab-about');}
+  if(tab==='certs'){removeTabDot('tab-certs');}
 }
 
 // ═══════════ PORTFOLIO ═══════════
@@ -3120,7 +3122,13 @@ function attemptPinLogin(){
 function onLoginSuccess(res, accVal){
   // Store session
   SESSION_TOKEN = res.token || null;
-  if(SESSION_TOKEN) startSessionTimer();
+  if(SESSION_TOKEN){
+    startSessionTimer();
+    try{
+      sessionStorage.setItem('kora_token', SESSION_TOKEN);
+      sessionStorage.setItem('kora_acc', accVal);
+    }catch(e){}
+  }
 
   // Load data from backend
   STATE.investorRef = accVal;
