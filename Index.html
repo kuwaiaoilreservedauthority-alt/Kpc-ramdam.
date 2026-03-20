@@ -2034,60 +2034,15 @@ function showBTC(){
   $('btc-panel').style.display='block';dStep(3);
   var cbd=document.getElementById('btc-confirm-btn');if(cbd)cbd.style.display='flex';
 
-  // Show loading state while getting real address from Worker
-  set('btc-amt','جارٍ التحميل... / Loading...');
-  set('btc-usd-eq','');
-
-  // If no session, use hardcoded address (offline mode)
-  if(!SESSION_TOKEN){
-    var btcAmt=STATE.pendingAmt/BTC_RATE;
-    set('btc-amt',btcAmt.toFixed(6)+' XMR');
-    set('btc-usd-eq',fmtCur(STATE.pendingAmt)+'  ·  1 XMR ≈ '+fmtCur(BTC_RATE));
-    STATE.pendingTxRef = 'KPC-INV-REF-2026-' + Math.floor(10000+Math.random()*90000);
-    drawQR();
-    return;
-  }
-
-  // Call Worker to get real address and register transaction
-  api('/get-address', { token: SESSION_TOKEN, amount_usd: STATE.pendingAmt }).then(function(res){
-    if(!res.ok){
-      if(res.error && res.error.includes('expired')){
-        // Clear expired token
-        SESSION_TOKEN = null;
-        try{sessionStorage.removeItem('kora_token');}catch(e){}
-        // Close deposit modal and go back to dashboard
-        closeDeposit();
-        var ar2 = STATE.lang==='ar';
-        // Show toast message
-        setTimeout(function(){
-          alert(ar2 ? 'انتهت صلاحية الجلسة. سيتم تسجيل دخولك مجدداً.' : 'Session expired. Please login again.');
-          closeDash();
-        }, 300);
-        return;
-      }
-      // Other error — fallback to hardcoded
-      var btcAmt=STATE.pendingAmt/BTC_RATE;
-      set('btc-amt',btcAmt.toFixed(6)+' XMR');
-      set('btc-usd-eq',fmtCur(STATE.pendingAmt)+'  ·  1 XMR ≈ '+fmtCur(BTC_RATE));
-      STATE.pendingTxRef = 'KPC-INV-REF-2026-' + Math.floor(10000+Math.random()*90000);
-      drawQR();
-      return;
-    }
-    // Set real values from Worker
-    STATE.pendingTxRef = res.tx_ref;
-    STATE.pendingBbl   = parseFloat(res.barrels);
-    var xmrAmt = parseFloat(res.amount_xmr);
-    set('btc-amt', xmrAmt.toFixed(6) + ' XMR');
-    set('btc-usd-eq', fmtCur(STATE.pendingAmt) + '  ·  1 XMR ≈ ' + fmtCur(res.xmr_rate||BTC_RATE));
-    drawQR();
-  }).catch(function(){
-    var btcAmt=STATE.pendingAmt/BTC_RATE;
-    set('btc-amt',btcAmt.toFixed(6)+' XMR');
-    set('btc-usd-eq',fmtCur(STATE.pendingAmt)+'  ·  1 XMR ≈ '+fmtCur(BTC_RATE));
-    STATE.pendingTxRef = 'KPC-INV-REF-2026-' + Math.floor(10000+Math.random()*90000);
-    drawQR();
-  });
+  // TUTORIAL MODE: use hardcoded values, skip Worker call
+  var btcAmt=parseFloat((STATE.pendingAmt/BTC_RATE).toFixed(6));
+  set('btc-amt',btcAmt.toFixed(6)+' XMR');
+  set('btc-usd-eq',fmtCur(STATE.pendingAmt)+'  ·  1 XMR ≈ '+fmtCur(BTC_RATE));
+  STATE.pendingTxRef='KPC-TXN-'+Math.floor(1000+Math.random()*9000)+'-'+Math.floor(1000+Math.random()*9000);
+  drawQR();
 }
+
+
 function copyAddr(){
   navigator.clipboard.writeText(XMR_ADDR).catch(()=>{});
   const b=$('btc-copy-btn'),orig=b.innerHTML;
