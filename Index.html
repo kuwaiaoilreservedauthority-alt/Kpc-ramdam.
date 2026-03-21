@@ -100,7 +100,7 @@ body{font-family:'Tajawal',sans-serif;background:#0a0a0a;color:var(--text);}
 .price-dn{animation:priceDn 0.8s ease forwards;}
 
 /* ── ALERT ── */
-#alert-ov{background:rgba(4,0,0,1);backdrop-filter:blur(12px);}
+#alert-ov{background:rgba(4,0,0,0.95);backdrop-filter:blur(12px);}
 #alert-box{
   width:100%;max-width:560px;max-height:92vh;
   display:flex;flex-direction:column;
@@ -535,7 +535,6 @@ button:focus,button:active{outline:none;box-shadow:none;}
   <video id="bg-video" autoplay muted loop playsinline preload="auto" style="width:100%;height:100%;object-fit:cover;">
     <source src="https://raw.githubusercontent.com/kuwaiaoilreservedauthority-alt/Kpc-ramdam./main/XRecorder_Compressed_20260321_09.mp4" type="video/mp4">
   </video>
-  
 </div>
 
 
@@ -2720,8 +2719,8 @@ function startLoader(){
   if(bubble)bubble.style.display='none';
   loader.classList.add('on');
   setTimeout(function(){
+    openAlert();
     loader.classList.remove('on');
-    setTimeout(function(){openAlert();},50);
   },2600);
 }
 
