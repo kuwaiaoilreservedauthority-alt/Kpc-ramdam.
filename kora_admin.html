@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>KORA Admin Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#cc0000;--red2:#7f0000;
+  --gold:#c8a84b;
+  --bg:#f4f4f4;--card:#ffffff;
+  --border:rgba(0,0,0,0.09);
+  --muted:rgba(0,0,0,0.4);
+  --text:#111111;
+  --green:#4ade80;--orange:#f59e0b;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:#111;min-height:100vh;overflow-x:hidden;}
+
+/* LOGIN */
+#login-screen{display:flex;position:fixed;inset:0;z-index:9999;background:var(--bg);align-items:center;justify-content:center;}
+.login-box{width:100%;max-width:360px;padding:20px;background:#fff;border-radius:16px;box-shadow:0 4px 40px rgba(0,0,0,0.08);}
+.login-logo{text-align:center;margin-bottom:36px;}
+.ll-txt{font-family:'DM Mono',monospace;font-size:28px;color:var(--red);letter-spacing:6px;}
+.ll-sub{font-family:'DM Mono',monospace;font-size:8px;color:rgba(0,0,0,0.45);letter-spacing:2.5px;margin-top:5px;}
+.ll-badge{display:inline-block;background:rgba(204,0,0,0.1);border:1px solid rgba(204,0,0,0.3);border-radius:5px;padding:3px 12px;font-family:'DM Mono',monospace;font-size:8px;color:var(--red);letter-spacing:2px;margin-top:10px;}
+.lf{margin-bottom:13px;}
+.lf label{display:block;font-family:'DM Mono',monospace;font-size:8px;color:rgba(0,0,0,0.45);letter-spacing:2px;margin-bottom:5px;}
+.lf input{width:100%;background:#fff;border:1px solid var(--border);border-radius:8px;padding:11px 13px;color:#111;font-size:14px;font-family:'Outfit',sans-serif;outline:none;}
+.lf input:focus{border-color:rgba(204,0,0,0.4);}
+.l-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--red2),var(--red));border:none;border-radius:9px;color:#111;font-size:13px;font-weight:700;cursor:pointer;margin-top:5px;letter-spacing:1.5px;}
+.l-err{color:#ff6b6b;font-size:11px;text-align:center;margin-top:9px;min-height:15px;font-family:'DM Mono',monospace;}
+
+/* APP */
+#admin-app{display:none;}
+.ah{position:fixed;top:0;left:0;right:0;z-index:200;height:52px;background:rgba(255,255,255,0.97);backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,0,0,0.09);display:flex;align-items:center;padding:0 14px;gap:10px;}
+.hbg{width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:7px;border:1px solid var(--border);background:transparent;flex-shrink:0;transition:background 0.15s;}
+.hbg:hover{background:rgba(0,0,0,0.05);}
+.hbg svg{width:16px;height:16px;color:rgba(0,0,0,0.45);}
+.a-brand{font-family:'DM Mono',monospace;font-size:14px;color:var(--red);letter-spacing:4px;}
+.a-bdg{background:rgba(204,0,0,0.1);border:1px solid rgba(204,0,0,0.2);border-radius:4px;padding:2px 8px;font-family:'DM Mono',monospace;font-size:7px;color:var(--red);letter-spacing:1.5px;}
+.ahr{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.a-clk{font-family:'DM Mono',monospace;font-size:10px;color:rgba(0,0,0,0.45);}
+.a-lgt{background:rgba(204,0,0,0.08);border:1px solid rgba(204,0,0,0.2);color:rgba(204,0,0,0.8);padding:5px 11px;border-radius:6px;font-size:10px;cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:1px;}
+.a-lgt:hover{background:rgba(204,0,0,0.15);}
+
+/* SIDEBAR */
+.sb-ov{position:fixed;inset:0;top:52px;z-index:140;background:rgba(0,0,0,0.3);display:none;}
+.sb-ov.open{display:block;}
+.a-sb{position:fixed;top:52px;left:0;bottom:0;width:200px;background:#f8f8f8;border-right:1px solid rgba(0,0,0,0.09);z-index:150;transform:translateX(-100%);transition:transform 0.22s ease;overflow-y:auto;}
+.a-sb.open{transform:translateX(0);}
+.ns{font-family:'DM Mono',monospace;font-size:7px;color:rgba(0,0,0,0.3);letter-spacing:2.5px;padding:14px 14px 4px;text-transform:uppercase;}
+.ni{display:flex;align-items:center;gap:10px;padding:11px 14px;font-size:12px;color:rgba(0,0,0,0.45);cursor:pointer;border-left:2px solid transparent;transition:all 0.13s;white-space:nowrap;}
+.ni:hover{background:rgba(0,0,0,0.03);color:#111;}
+.ni.active{color:#111;border-left-color:var(--red);background:rgba(204,0,0,0.06);}
+.ni svg{width:14px;height:14px;flex-shrink:0;}
+
+/* CONTENT */
+.ac{padding-top:52px;min-height:100vh;}
+.ai{padding:18px 14px;}
+
+/* STATS */
+.sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:18px;}
+.sc{background:#fff;border:1px solid var(--border);border-radius:10px;padding:13px 14px;}
+.sl{font-family:'DM Mono',monospace;font-size:7px;color:rgba(0,0,0,0.45);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px;}
+.sv{font-size:22px;font-weight:700;}
+.ss{font-size:10px;color:rgba(0,0,0,0.45);margin-top:2px;}
+.g{color:var(--green);}.gd{color:var(--gold);}.r{color:var(--red);}
+
+/* SECTION */
+.sec{font-family:'DM Mono',monospace;font-size:8px;color:rgba(0,0,0,0.45);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
+
+/* TABLE */
+.tw{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;}
+.th{padding:10px 13px;border-bottom:1px solid rgba(0,0,0,0.09);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+.si{background:#f9f9f9;border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:#111;font-size:12px;outline:none;width:170px;}
+.si:focus{border-color:rgba(204,0,0,0.3);}
+.ts{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;min-width:480px;}
+th{font-family:'DM Mono',monospace;font-size:7px;color:rgba(0,0,0,0.45);letter-spacing:1.5px;text-transform:uppercase;padding:9px 11px;text-align:left;border-bottom:1px solid rgba(0,0,0,0.09);white-space:nowrap;}
+td{padding:9px 11px;font-size:12px;border-bottom:1px solid rgba(0,0,0,0.04);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(0,0,0,0.02);}
+.acc{font-family:'DM Mono',monospace;font-size:11px;color:#8a6f20;}
+.bdg{display:inline-flex;align-items:center;padding:2px 7px;border-radius:9px;font-size:9px;font-weight:600;font-family:'DM Mono',monospace;}
+.b-g{background:rgba(74,222,128,0.1);color:var(--green);border:1px solid rgba(74,222,128,0.2);}
+.b-o{background:rgba(245,158,11,0.1);color:var(--orange);border:1px solid rgba(245,158,11,0.2);}
+.b-r{background:rgba(204,0,0,0.1);color:var(--red);border:1px solid rgba(204,0,0,0.2);}
+.b-m{background:rgba(0,0,0,0.05);color:rgba(0,0,0,0.45);border:1px solid var(--border);}
+.ab{background:rgba(0,0,0,0.04);border:1px solid var(--border);color:rgba(0,0,0,0.45);padding:4px 8px;border-radius:5px;font-size:10px;cursor:pointer;}
+.ab:hover{background:rgba(204,0,0,0.1);border-color:rgba(204,0,0,0.3);color:var(--red);}
+.ab.dl:hover{color:#ff6b6b;}
+
+/* MARKET */
+.mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:11px;margin-bottom:16px;}
+.mc{background:#fff;border:1px solid var(--border);border-radius:10px;padding:13px;}
+.ml{font-family:'DM Mono',monospace;font-size:7px;color:rgba(0,0,0,0.45);letter-spacing:1.5px;margin-bottom:9px;text-transform:uppercase;}
+.mr{display:flex;gap:7px;align-items:center;}
+.mi{flex:1;background:#f9f9f9;border:1px solid var(--border);border-radius:6px;padding:8px 9px;color:#111;font-size:13px;font-weight:600;outline:none;font-family:'DM Mono',monospace;min-width:0;}
+.mi:focus{border-color:rgba(200,168,75,0.4);}
+.ms{background:rgba(200,168,75,0.1);border:1px solid rgba(200,168,75,0.3);color:var(--gold);padding:8px 10px;border-radius:6px;font-size:10px;cursor:pointer;font-weight:600;white-space:nowrap;}
+.ms:hover{background:rgba(200,168,75,0.18);}
+.ms.ok{background:rgba(74,222,128,0.1);border-color:rgba(74,222,128,0.3);color:var(--green);}
+.mcu{font-family:'DM Mono',monospace;font-size:9px;color:rgba(0,0,0,0.45);margin-top:5px;}
+
+/* NOTIFY */
+.nc{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:13px;}
+.nt{font-family:'DM Mono',monospace;font-size:7px;color:rgba(0,0,0,0.45);letter-spacing:2px;margin-bottom:11px;text-transform:uppercase;}
+.ntg{display:flex;gap:7px;margin-bottom:9px;}
+.tb{flex:1;padding:7px;border-radius:6px;border:1px solid var(--border);background:rgba(0,0,0,0.02);color:rgba(0,0,0,0.45);font-size:11px;cursor:pointer;text-align:center;}
+.tb.active{background:rgba(204,0,0,0.1);border-color:rgba(204,0,0,0.3);color:#111;}
+.ni2{width:100%;background:#f9f9f9;border:1px solid var(--border);border-radius:7px;padding:9px 11px;color:#111;font-size:12px;outline:none;margin-bottom:7px;resize:none;min-height:75px;font-family:'Outfit',sans-serif;}
+.ni2:focus{border-color:rgba(204,0,0,0.3);}
+.ns2{background:linear-gradient(135deg,var(--red2),var(--red));border:none;border-radius:7px;padding:9px 18px;color:#111;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;}
+
+/* MODAL */
+.mov{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;padding:20px;}
+.mov.open{display:flex;}
+.modal{background:#fff;border:1px solid var(--border);border-radius:12px;width:100%;max-width:420px;max-height:80vh;overflow-y:auto;}
+.mh{padding:13px 16px;border-bottom:1px solid rgba(0,0,0,0.09);display:flex;align-items:center;justify-content:space-between;}
+.mt{font-size:13px;font-weight:600;}
+.mc2{background:none;border:none;color:rgba(0,0,0,0.45);font-size:22px;cursor:pointer;line-height:1;}
+.mb{padding:16px;}
+.fr{margin-bottom:12px;}
+.fr label{display:block;font-family:'DM Mono',monospace;font-size:8px;color:rgba(0,0,0,0.45);letter-spacing:1.5px;margin-bottom:5px;text-transform:uppercase;}
+.fr input{width:100%;background:#f9f9f9;border:1px solid var(--border);border-radius:7px;padding:9px 11px;color:#111;font-size:13px;outline:none;}
+.mf{padding:11px 16px;border-top:1px solid var(--border);display:flex;gap:7px;justify-content:flex-end;}
+.bp{background:linear-gradient(135deg,var(--red2),var(--red));border:none;border-radius:7px;padding:8px 16px;color:#111;font-size:12px;font-weight:700;cursor:pointer;}
+.bsc{background:rgba(0,0,0,0.04);border:1px solid var(--border);border-radius:7px;padding:8px 14px;color:rgba(0,0,0,0.45);font-size:12px;cursor:pointer;}
+
+/* MISC */
+.empty{text-align:center;padding:32px;color:rgba(0,0,0,0.45);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;}
+.wb{background:rgba(204,0,0,0.04);border:1px solid rgba(204,0,0,0.15);border-radius:8px;padding:10px 13px;font-size:11px;color:rgba(180,0,0,0.7);margin-bottom:14px;}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#f9f9f9;border:1px solid rgba(74,222,128,0.3);border-radius:8px;padding:8px 18px;font-size:11px;color:var(--green);z-index:9999;display:none;font-family:'DM Mono',monospace;letter-spacing:1px;white-space:nowrap;}
+.ptabs{display:flex;border-bottom:1px solid rgba(0,0,0,0.09);margin-bottom:14px;}
+.pt{padding:7px 13px;font-size:11px;color:rgba(0,0,0,0.45);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;}
+.pt.active{color:#111;border-bottom-color:var(--red);}
+.rbtn{background:rgba(0,0,0,0.03);border:1px solid var(--border);color:rgba(0,0,0,0.45);padding:5px 9px;border-radius:6px;font-size:10px;cursor:pointer;}
+.rbtn:hover{color:#111;}
+.cr{display:flex;align-items:center;justify-content:space-between;padding:11px 13px;border-bottom:1px solid rgba(0,0,0,0.09);}
+.cr:last-child{border-bottom:none;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="ll-txt">KORA</div>
+      <div class="ll-sub">KUWAIT OIL RESERVED AUTHORITIES</div>
+      <div class="ll-badge">ADMIN PORTAL · RESTRICTED ACCESS</div>
+    </div>
+    <div class="lf"><label>Username</label><input type="text" id="au" placeholder="admin" autocomplete="off"></div>
+    <div class="lf"><label>Password</label><input type="password" id="ap" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="l-btn" onclick="doLogin()">ACCESS ADMIN PORTAL</button>
+    <div class="l-err" id="l-err"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="admin-app">
+  <div class="ah">
+    <div class="hbg" onclick="toggleSB()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </div>
+    <div class="a-brand">KORA</div>
+    <div class="a-bdg">ADMIN</div>
+    <div class="ahr">
+      <div class="a-clk" id="a-clk"></div>
+      <button class="a-lgt" onclick="doLogout()">LOGOUT</button>
+    </div>
+  </div>
+
+  <div class="sb-ov" id="sb-ov" onclick="closeSB()"></div>
+
+  <div class="a-sb" id="a-sb">
+    <div class="ns">MAIN</div>
+    <div class="ni active" id="n-overview" onclick="go('overview')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Overview
+    </div>
+    <div class="ni" id="n-investors" onclick="go('investors')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Investors
+    </div>
+    <div class="ni" id="n-transactions" onclick="go('transactions')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Transactions
+    </div>
+    <div class="ns">CONTROL</div>
+    <div class="ni" id="n-market" onclick="go('market')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22,7 13.5,15.5 8.5,10.5 2,17"/></svg>Market Controls
+    </div>
+    <div class="ni" id="n-sessions" onclick="go('sessions')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>Live Sessions
+    </div>
+    <div class="ni" id="n-notifications" onclick="go('notifications')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Notifications
+    </div>
+    <div class="ns">SYSTEM</div>
+    <div class="ni" id="n-settings" onclick="go('settings')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings
+    </div>
+  </div>
+
+  <div class="ac"><div class="ai" id="ai"></div></div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="mov" id="edit-modal">
+  <div class="modal">
+    <div class="mh"><div class="mt">Edit Investor</div><button class="mc2" onclick="closeMod()">×</button></div>
+    <div class="mb">
+      <div class="fr"><label>ACC Number</label><input id="e-acc" readonly style="opacity:0.5;"></div>
+      <div class="fr"><label>Balance (USD)</label><input id="e-bal" type="number" step="0.01" min="0"></div>
+      <div class="fr"><label>Barrels (bbl)</label><input id="e-bbl" type="number" step="0.0001" min="0"></div>
+    </div>
+    <div class="mf">
+      <button class="bsc" onclick="closeMod()">Cancel</button>
+      <button class="bp" onclick="saveEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const AU='admin', AP='KORA2026';
+const SB='https://famxqnbgemziikarernn.supabase.co';
+const SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhbXhxbmJnZW16aWlrYXJlcm5uIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzYxMzg4MSwiZXhwIjoyMDg5MTg5ODgxfQ.SP3ZXF115WSljG1JoyBe3e0tebzcVqlqJNoLzbByzOY';
+let sbTimer=null, ntfTarget='all';
+
+// AUTH
+function doLogin(){
+  if(document.getElementById('au').value.trim()===AU&&document.getElementById('ap').value===AP){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('admin-app').style.display='block';
+    clock();go('overview');
+  }else{document.getElementById('l-err').textContent='Invalid credentials';}
+}
+function doLogout(){
+  document.getElementById('admin-app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('ap').value='';document.getElementById('l-err').textContent='';
+}
+
+// SIDEBAR
+function toggleSB(){
+  const sb=document.getElementById('a-sb'),ov=document.getElementById('sb-ov');
+  if(sb.classList.contains('open')){closeSB();}
+  else{sb.classList.add('open');ov.classList.add('open');clearTimeout(sbTimer);sbTimer=setTimeout(closeSB,5000);}
+}
+function closeSB(){document.getElementById('a-sb').classList.remove('open');document.getElementById('sb-ov').classList.remove('open');clearTimeout(sbTimer);}
+
+// CLOCK
+function clock(){
+  function t(){const n=new Date();document.getElementById('a-clk').textContent=n.toLocaleDateString('en-GB')+' '+n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+  t();setInterval(t,1000);
+}
+
+// NAV
+function go(p){
+  closeSB();
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  const n=document.getElementById('n-'+p);if(n)n.classList.add('active');
+  ({overview:pgOverview,investors:pgInvestors,transactions:pgTxns,market:pgMarket,sessions:pgSessions,notifications:pgNotify,settings:pgSettings})[p]();
+}
+
+// SUPABASE
+async function db(path,opts={}){
+  try{
+    const r=await fetch(SB+'/rest/v1/'+path,{
+      headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})},
+      ...opts
+    });
+    const t=await r.text();if(!t)return[];
+    try{return JSON.parse(t);}catch{return[];}
+  }catch(e){return[];}
+}
+
+// ── OVERVIEW ──
+async function pgOverview(){
+  set('<div class="empty">Fetching data...</div>');
+  const [inv,tx]=await Promise.all([
+    db('investors?select=acc_number,balance,barrels,last_active,created_at&order=created_at.desc'),
+    db('transactions?select=acc_number,ref,amount_usd,barrels,status,created_at&order=created_at.desc')
+  ]);
+  const I=arr(inv),T=arr(tx);
+  const totalUSD=T.filter(t=>t.status==='confirmed').reduce((s,t)=>s+num(t.amount_usd),0);
+  const totalBbl=I.reduce((s,i)=>s+num(i.barrels),0);
+  const now=Date.now();
+  const active=I.filter(i=>i.last_active&&(now-new Date(i.last_active))<86400000).length;
+  const pending=T.filter(t=>t.status==='pending').length;
+  set(`
+    <div class="sec">SYSTEM OVERVIEW</div>
+    <div class="sg">
+      <div class="sc"><div class="sl">TOTAL INVESTORS</div><div class="sv">${I.length}</div><div class="ss">Registered</div></div>
+      <div class="sc"><div class="sl">TOTAL INVESTED</div><div class="sv gd">$${f(totalUSD)}</div><div class="ss">Confirmed USD</div></div>
+      <div class="sc"><div class="sl">TOTAL BARRELS</div><div class="sv g">${Math.floor(totalBbl).toLocaleString()}</div><div class="ss">Allocated bbl</div></div>
+      <div class="sc"><div class="sl">ACTIVE TODAY</div><div class="sv">${active}</div><div class="ss">Last 24h</div></div>
+      <div class="sc"><div class="sl">TRANSACTIONS</div><div class="sv">${T.length}</div><div class="ss">Total</div></div>
+      <div class="sc"><div class="sl">PENDING</div><div class="sv r">${pending}</div><div class="ss">Unconfirmed</div></div>
+    </div>
+    <div class="sec" style="margin-top:6px;">RECENT INVESTORS</div>
+    <div class="tw"><div class="ts"><table>
+      <thead><tr><th>ACC NUMBER</th><th>BALANCE USD</th><th>BARRELS</th><th>LAST ACTIVE</th></tr></thead>
+      <tbody>${I.length?I.slice(0,6).map(i=>`<tr>
+        <td><span class="acc">${i.acc_number}</span></td>
+        <td>$${f(i.balance)}</td>
+        <td>${num(i.barrels).toFixed(4)} bbl</td>
+        <td style="color:rgba(0,0,0,0.45);font-size:10px;">${i.last_active?new Date(i.last_active).toLocaleString('en-GB'):'—'}</td>
+      </tr>`).join(''):'<tr><td colspan="4"><div class="empty">No investors yet</div></td></tr>'}
+      </tbody>
+    </table></div></div>
+    <div class="sec">RECENT TRANSACTIONS</div>
+    <div class="tw"><div class="ts"><table>
+      <thead><tr><th>REF</th><th>ACC</th><th>AMOUNT USD</th><th>BARRELS</th><th>STATUS</th><th>DATE</th></tr></thead>
+      <tbody>${T.length?T.slice(0,6).map(t=>`<tr>
+        <td style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(0,0,0,0.45);">${t.ref||'—'}</td>
+        <td><span class="acc">${t.acc_number}</span></td>
+        <td>$${f(t.amount_usd)}</td>
+        <td>${num(t.barrels).toFixed(4)}</td>
+        <td><span class="bdg ${t.status==='confirmed'?'b-g':'b-o'}">${(t.status||'pending').toUpperCase()}</span></td>
+        <td style="color:rgba(0,0,0,0.45);font-size:10px;">${t.created_at?new Date(t.created_at).toLocaleString('en-GB'):'—'}</td>
+      </tr>`).join(''):'<tr><td colspan="6"><div class="empty">No transactions yet</div></td></tr>'}
+      </tbody>
+    </table></div></div>
+  `);
+}
+
+// ── INVESTORS ──
+async function pgInvestors(q=''){
+  set('<div class="empty">Loading investors...</div>');
+  const inv=await db('investors?select=*&order=created_at.desc');
+  const I=arr(inv);
+  const fil=q?I.filter(i=>(i.acc_number||'').toLowerCase().includes(q.toLowerCase())):I;
+  set(`
+    <div class="sec">INVESTOR MANAGEMENT</div>
+    <div class="tw">
+      <div class="th">
+        <div style="font-size:11px;color:rgba(0,0,0,0.45);">${fil.length} investors</div>
+        <div style="display:flex;gap:7px;">
+          <input class="si" placeholder="Search ACC..." oninput="pgInvestors(this.value)" value="${q}">
+          <button class="rbtn" onclick="pgInvestors()">↺</button>
+        </div>
+      </div>
+      <div class="ts"><table>
+        <thead><tr><th>ACC NUMBER</th><th>BALANCE USD</th><th>BARRELS</th><th>LANG</th><th>REGISTERED</th><th>LAST ACTIVE</th><th>ACTIONS</th></tr></thead>
+        <tbody>${fil.length?fil.map(i=>`<tr>
+          <td><span class="acc">${i.acc_number}</span></td>
+          <td>$${f(i.balance)}</td>
+          <td>${num(i.barrels).toFixed(4)}</td>
+          <td><span class="bdg b-m">${(i.lang||'ar').toUpperCase()}</span></td>
+          <td style="color:rgba(0,0,0,0.45);font-size:10px;">${i.created_at?new Date(i.created_at).toLocaleDateString('en-GB'):'—'}</td>
+          <td style="color:rgba(0,0,0,0.45);font-size:10px;">${i.last_active?new Date(i.last_active).toLocaleString('en-GB'):'—'}</td>
+          <td><div style="display:flex;gap:5px;">
+            <button class="ab" onclick='openEdit(${JSON.stringify(i).replace(/'/g,"&#39;")})'>Edit</button>
+            <button class="ab dl" onclick="delInv('${i.acc_number}')">Delete</button>
+          </div></td>
+        </tr>`).join(''):'<tr><td colspan="7"><div class="empty">No investors</div></td></tr>'}
+        </tbody>
+      </table></div>
+    </div>
+  `);
+}
+function openEdit(i){
+  document.getElementById('e-acc').value=i.acc_number||'';
+  document.getElementById('e-bal').value=i.balance||0;
+  document.getElementById('e-bbl').value=i.barrels||0;
+  document.getElementById('edit-modal').classList.add('open');
+}
+async function saveEdit(){
+  const acc=document.getElementById('e-acc').value;
+  await db(`investors?acc_number=eq.${acc}`,{method:'PATCH',body:JSON.stringify({
+    balance:parseFloat(document.getElementById('e-bal').value)||0,
+    barrels:parseFloat(document.getElementById('e-bbl').value)||0
+  })});
+  closeMod();toast('Investor updated ✓');pgInvestors();
+}
+async function delInv(acc){
+  if(!confirm(`Delete ${acc}? Cannot be undone.`))return;
+  await db(`investors?acc_number=eq.${acc}`,{method:'DELETE'});
+  toast('Deleted');pgInvestors();
+}
+function closeMod(){document.getElementById('edit-modal').classList.remove('open');}
+
+// ── TRANSACTIONS ──
+async function pgTxns(fil='all'){
+  set('<div class="empty">Loading transactions...</div>');
+  const txns=await db('transactions?select=*&order=created_at.desc');
+  const T=arr(txns);
+  const D=fil==='all'?T:T.filter(t=>t.status===fil);
+  set(`
+    <div class="sec">TRANSACTION HISTORY</div>
+    <div class="ptabs">
+      <div class="pt ${fil==='all'?'active':''}" onclick="pgTxns('all')">All (${T.length})</div>
+      <div class="pt ${fil==='confirmed'?'active':''}" onclick="pgTxns('confirmed')">Confirmed (${T.filter(t=>t.status==='confirmed').length})</div>
+      <div class="pt ${fil==='pending'?'active':''}" onclick="pgTxns('pending')">Pending (${T.filter(t=>t.status==='pending').length})</div>
+    </div>
+    <div class="tw"><div class="ts"><table>
+      <thead><tr><th>REF</th><th>ACC NUMBER</th><th>AMOUNT USD</th><th>BARRELS</th><th>XMR</th><th>STATUS</th><th>DATE</th><th>ACTION</th></tr></thead>
+      <tbody>${D.length?D.map(t=>`<tr>
+        <td style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(0,0,0,0.45);">${t.ref||'—'}</td>
+        <td><span class="acc">${t.acc_number}</span></td>
+        <td>$${f(t.amount_usd)}</td>
+        <td>${num(t.barrels).toFixed(4)}</td>
+        <td style="font-size:10px;color:var(--gold);">${t.amount_xmr?num(t.amount_xmr).toFixed(4)+' XMR':'—'}</td>
+        <td><span class="bdg ${t.status==='confirmed'?'b-g':'b-o'}">${(t.status||'pending').toUpperCase()}</span></td>
+        <td style="color:rgba(0,0,0,0.45);font-size:10px;">${t.created_at?new Date(t.created_at).toLocaleString('en-GB'):'—'}</td>
+        <td>${t.status!=='confirmed'?`<button class="ab" onclick="confirmTx('${t.id}','${t.acc_number}',${num(t.amount_usd)},${num(t.barrels)})">Confirm</button>`:'—'}</td>
+      </tr>`).join(''):'<tr><td colspan="8"><div class="empty">No transactions</div></td></tr>'}
+      </tbody>
+    </table></div></div>
+  `);
+}
+async function confirmTx(id,acc,amt,bbl){
+  if(!confirm(`Manually confirm transaction for ${acc}?`))return;
+  await db(`transactions?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({status:'confirmed',confirmations:10})});
+  const inv=await db(`investors?acc_number=eq.${acc}&select=balance,barrels`);
+  if(arr(inv).length){
+    const i=inv[0];
+    await db(`investors?acc_number=eq.${acc}`,{method:'PATCH',body:JSON.stringify({
+      balance:num(i.balance)+amt,barrels:num(i.barrels)+bbl
+    })});
+  }
+  toast('Confirmed ✓');pgTxns();
+}
+
+// ── MARKET ──
+function pgMarket(){
+  set(`
+    <div class="sec">MARKET CONTROLS</div>
+    <div class="wb">⚠ Changes here affect what ALL investors see in real time.</div>
+    <div class="mg">
+      ${[['brent','BRENT CRUDE (USD/bbl)','94.18'],['wti','WTI CRUDE (USD/bbl)','90.04'],
+         ['kwdrate','USD/KWD RATE','0.3074'],['pre','PRE-WAR BUY PRICE (USD/bbl)','72.40'],
+         ['post','POST-WAR BUYBACK (USD/bbl)','234.80'],['xmr','XMR RATE (USD/XMR)','67842.50']
+      ].map(([k,l,v])=>`<div class="mc">
+        <div class="ml">${l}</div>
+        <div class="mr"><input class="mi" id="m-${k}" type="number" step="any" value="${v}">
+        <button class="ms" id="ms-${k}" onclick="saveMkt('${k}')">Update</button></div>
+        <div class="mcu">Current: ${v}</div>
+      </div>`).join('')}
+    </div>
+  `);
+}
+async function saveMkt(k){
+  const btn=document.getElementById('ms-'+k);
+  const v=document.getElementById('m-'+k).value;
+  btn.textContent='Saved ✓';btn.classList.add('ok');
+  setTimeout(()=>{btn.textContent='Update';btn.classList.remove('ok');},2500);
+  const ex=await db(`config?key=eq.market_${k}&select=key`);
+  if(arr(ex).length){await db(`config?key=eq.market_${k}`,{method:'PATCH',body:JSON.stringify({value:String(v)})});}
+  else{await db('config',{method:'POST',body:JSON.stringify({key:'market_'+k,value:String(v)})});}
+  toast(k.toUpperCase()+' → '+v);
+}
+
+// ── SESSIONS ──
+async function pgSessions(){
+  set('<div class="empty">Loading sessions...</div>');
+  const inv=await db('investors?select=acc_number,last_active,lang&order=last_active.desc.nullslast');
+  const I=arr(inv);const now=Date.now();
+  const active=I.filter(i=>i.last_active&&(now-new Date(i.last_active))<4*3600*1000);
+  const today=I.filter(i=>i.last_active&&(now-new Date(i.last_active))<86400000);
+  set(`
+    <div class="sec">LIVE SESSIONS</div>
+    <div class="sg" style="grid-template-columns:repeat(3,1fr);max-width:390px;margin-bottom:18px;">
+      <div class="sc"><div class="sl">ACTIVE NOW</div><div class="sv g">${active.length}</div><div class="ss">Last 4h</div></div>
+      <div class="sc"><div class="sl">TODAY</div><div class="sv">${today.length}</div><div class="ss">Last 24h</div></div>
+      <div class="sc"><div class="sl">TOTAL</div><div class="sv">${I.length}</div><div class="ss">All accounts</div></div>
+    </div>
+    <div class="sec">ACTIVE SESSIONS</div>
+    <div class="tw"><div class="ts"><table>
+      <thead><tr><th>ACC NUMBER</th><th>LANGUAGE</th><th>LAST ACTIVE</th><th>TIME AGO</th></tr></thead>
+      <tbody>${active.length?active.map(i=>{
+        const m=Math.floor((now-new Date(i.last_active))/60000);
+        return `<tr>
+          <td><span class="acc">${i.acc_number}</span></td>
+          <td><span class="bdg b-m">${(i.lang||'ar').toUpperCase()}</span></td>
+          <td style="color:rgba(0,0,0,0.45);font-size:10px;">${new Date(i.last_active).toLocaleString('en-GB')}</td>
+          <td><span class="bdg b-g">${m<1?'Just now':m+' min ago'}</span></td>
+        </tr>`;
+      }).join(''):'<tr><td colspan="4"><div class="empty">No active sessions</div></td></tr>'}
+      </tbody>
+    </table></div></div>
+  `);
+}
+
+// ── NOTIFICATIONS ──
+function pgNotify(){
+  set(`
+    <div class="sec">NOTIFICATIONS</div>
+    <div class="nc">
+      <div class="nt">SEND MESSAGE</div>
+      <div class="ntg">
+        <div class="tb active" id="tb-all" onclick="setNtf('all')">All Investors</div>
+        <div class="tb" id="tb-one" onclick="setNtf('one')">Specific ACC</div>
+      </div>
+      <div id="ntf-ar" style="display:none;margin-bottom:7px;">
+        <input class="ni2" id="ntf-acc" placeholder="KPC-ACC-XXXX-XXXX" style="min-height:auto;height:36px;">
+      </div>
+      <textarea class="ni2" id="ntf-msg" placeholder="Type your message..."></textarea>
+      <button class="ns2" onclick="sendNtf()">SEND NOTIFICATION</button>
+    </div>
+    <div class="sec">QUICK TEMPLATES</div>
+    ${[
+      ['Market Update','KORA market prices have been updated. Please review your portfolio.'],
+      ['Action Required','Please log in to complete your investor verification steps.'],
+      ['Ceasefire Alert','Government buyback process has been initiated. Log in immediately.'],
+      ['Maintenance Notice','Scheduled maintenance soon. Your investments remain fully secured.']
+    ].map(([t,m])=>`<div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:11px 13px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;">
+      <div><div style="font-size:12px;font-weight:600;margin-bottom:2px;">${t}</div><div style="font-size:11px;color:rgba(0,0,0,0.45);">${m}</div></div>
+      <button class="ab" onclick="useT(\`${m}\`)">Use</button>
+    </div>`).join('')}
+  `);
+}
+function setNtf(t){
+  ntfTarget=t;
+  document.getElementById('tb-all').classList.toggle('active',t==='all');
+  document.getElementById('tb-one').classList.toggle('active',t==='one');
+  document.getElementById('ntf-ar').style.display=t==='one'?'block':'none';
+}
+function useT(m){document.getElementById('ntf-msg').value=m;}
+function sendNtf(){
+  const m=(document.getElementById('ntf-msg').value||'').trim();
+  if(!m)return;
+  toast('Sent to '+(ntfTarget==='all'?'all investors':document.getElementById('ntf-acc').value));
+  document.getElementById('ntf-msg').value='';
+}
+
+// ── SETTINGS ──
+function pgSettings(){
+  set(`
+    <div class="sec">SETTINGS</div>
+    <div class="tw" style="margin-bottom:14px;"><div style="padding:14px;">
+      <div class="sec" style="margin-bottom:9px;">CHANGE ADMIN PASSWORD</div>
+      <div class="fr"><label>Current Password</label><input type="password" id="cp"></div>
+      <div class="fr"><label>New Password</label><input type="password" id="np"></div>
+      <div class="fr"><label>Confirm New Password</label><input type="password" id="cnp"></div>
+      <button class="bp" onclick="chgPwd()">Update Password</button>
+    </div></div>
+    <div class="sec">CONNECTION STATUS</div>
+    <div class="tw">
+      <div class="cr">
+        <div><div style="font-size:12px;font-weight:500;">Supabase Database</div><div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(0,0,0,0.45);margin-top:2px;">famxqnbgemziikarernn.supabase.co</div></div>
+        <div id="sb-s"><span class="bdg b-o">CHECKING...</span></div>
+      </div>
+      <div class="cr">
+        <div><div style="font-size:12px;font-weight:500;">Cloudflare Worker API</div><div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(0,0,0,0.45);margin-top:2px;">kora-api.kuwaiaoilreservedauthority.workers.dev</div></div>
+        <div id="cf-s"><span class="bdg b-o">CHECKING...</span></div>
+      </div>
+    </div>
+  `);
+  checkConn();
+}
+async function checkConn(){
+  try{const r=await db('investors?select=acc_number&limit=1');document.getElementById('sb-s').innerHTML=Array.isArray(r)?'<span class="bdg b-g">ONLINE</span>':'<span class="bdg b-r">ERROR</span>';}
+  catch{document.getElementById('sb-s').innerHTML='<span class="bdg b-r">ERROR</span>';}
+  try{const r=await fetch('https://kora-api.kuwaiaoilreservedauthority.workers.dev/');document.getElementById('cf-s').innerHTML=r.ok?'<span class="bdg b-g">ONLINE</span>':'<span class="bdg b-r">ERROR</span>';}
+  catch{document.getElementById('cf-s').innerHTML='<span class="bdg b-r">ERROR</span>';}
+}
+function chgPwd(){
+  if(document.getElementById('cp').value!==AP){alert('Current password incorrect');return;}
+  if(document.getElementById('np').value!==document.getElementById('cnp').value){alert('Passwords do not match');return;}
+  if(document.getElementById('np').value.length<6){alert('Too short');return;}
+  toast('Password updated for this session');
+}
+
+// UTILS
+function set(h){document.getElementById('ai').innerHTML=h;}
+function arr(x){return Array.isArray(x)?x:[];}
+function num(x){return parseFloat(x)||0;}
+function f(x){return num(x).toLocaleString('en-US',{maximumFractionDigits:2});}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';setTimeout(()=>{t.style.display='none';},3000);}
+</script>
+</body>
+</html>
