@@ -520,11 +520,26 @@ function setNtf(t){
   document.getElementById('ntf-ar').style.display=t==='one'?'block':'none';
 }
 function useT(m){document.getElementById('ntf-msg').value=m;}
-function sendNtf(){
-  const m=(document.getElementById('ntf-msg').value||'').trim();
-  if(!m)return;
-  toast('Sent to '+(ntfTarget==='all'?'all investors':document.getElementById('ntf-acc').value));
-  document.getElementById('ntf-msg').value='';
+async function sendNtf(){
+  const msg=(document.getElementById('ntf-msg').value||'').trim();
+  if(!msg){alert('Please type a message first');return;}
+  const btn=document.querySelector('.ns2');
+  btn.textContent='Sending...';btn.disabled=true;
+  const acc=ntfTarget==='one'?(document.getElementById('ntf-acc').value||'').trim():'';
+  const payload={
+    message: msg,
+    target: ntfTarget==='all'?'all':acc,
+    acc_number: acc||null
+  };
+  const r=await db('notifications',{method:'POST',body:JSON.stringify(payload)});
+  btn.textContent='SEND NOTIFICATION';btn.disabled=false;
+  if(Array.isArray(r)||r){
+    toast('Notification sent ✓');
+    document.getElementById('ntf-msg').value='';
+    if(document.getElementById('ntf-acc'))document.getElementById('ntf-acc').value='';
+  } else {
+    toast('Error — check Supabase connection');
+  }
 }
 
 // ── SETTINGS ──
