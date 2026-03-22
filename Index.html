@@ -615,7 +615,7 @@ button:focus,button:active{outline:none;box-shadow:none;}
       </div>
       <div class="dh-right">
         <button id="lang-btn" onclick="toggleLang()">English</button>
-        <button class="dh-close" onclick="doLogout()" id="dash-logout-btn" style="font-size:11px;font-family:'DM Mono',monospace;letter-spacing:1px;padding:5px 10px;width:auto;">LOGOUT</button>
+        
       </div>
     </div>
 
@@ -627,6 +627,10 @@ button:focus,button:active{outline:none;box-shadow:none;}
       <div class="d-tab" id="tab-notifs" onclick="showTab('notifs')"><span id="tab-notifs-lbl">الإشعارات</span><span id="notifs-dot" style="display:none;width:7px;height:7px;background:#cc0000;border-radius:50%;margin-right:3px;animation:dotPulse 1.4s infinite;vertical-align:middle;"></span></div>
       <div class="d-tab" id="tab-about" onclick="showTab('about')"><span id="tab-about-lbl">عن البرنامج</span><span id="about-dot" style="display:none;width:7px;height:7px;background:#cc0000;border-radius:50%;margin-right:3px;animation:dotPulse 1.4s infinite;vertical-align:middle;display:inline-block;"></span></div>
       <div class="d-tab" id="tab-support" onclick="showTab('support')">الدعم</div>
+    <div class="d-tab" id="tab-logout" onclick="doLogout()" style="margin-left:auto;color:rgba(204,0,0,0.6);display:flex;align-items:center;gap:5px;padding:10px 12px;flex-shrink:0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span style="font-size:10px;font-family:'DM Mono',monospace;letter-spacing:1px;" id="logout-lbl">خروج</span>
+      </div>
     </div>
 
     <div class="d-body">
@@ -924,7 +928,7 @@ button:focus,button:active{outline:none;box-shadow:none;}
             </div>
           </div>
           <div style="text-align:right;font-family:'DM Mono',monospace;font-size:8.5px;color:rgba(100,160,255,0.45);">KORA<br><span style="color:rgba(255,255,255,0.2);font-size:8px;">+(965) 1 85 85 85</span></div>
-        </div>
+        
         <div id="tab-ch-msgs" style="background:#0a0a0a;border:1px solid rgba(255,255,255,0.06);border-radius:10px;height:190px;overflow-y:auto;padding:11px;display:flex;flex-direction:column;gap:8px;margin-bottom:10px;scrollbar-width:thin;"></div>
         <div id="tab-ch-quick" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;"></div>
         <div style="display:flex;gap:7px;margin-bottom:14px;">
@@ -936,6 +940,8 @@ button:focus,button:active{outline:none;box-shadow:none;}
         <div style="font-size:9px;color:rgba(255,255,255,0.25);letter-spacing:2px;text-transform:uppercase;margin-bottom:9px;" id="support-instr-lbl">How to Send Monero (XMR)</div>
         <div id="btc-instructions" style="display:flex;flex-direction:column;gap:7px;"></div>
       </div>
+      </div>
+
 
     </div>
 
@@ -1575,7 +1581,7 @@ function applyLang(){
   set('d-retlbl',t.retLbl);set('d-entry-lbl',t.entryLbl);set('d-now2-lbl',t.now2Lbl);set('d-target-lbl',t.targetLbl);
   set('d-kpi-sec',t.kpiSec);set('d-kpi1',t.kpi1);set('d-kpi2',t.kpi2);set('d-kpi3',t.kpi3);set('d-target-kpi',t.targetKpi);
   set('d-acq-txt',t.acqTxt);set('d-acq-txt2',t.acqTxt);
-  set('tab-overview',t.tabOv);set('tab-market',t.tabMkt);set('tab-portfolio',t.tabPort);set('tab-certs-lbl',t.tabCerts||'الشهادات');set('tab-notifs-lbl',ar?'الإشعارات':'Notifications');set('tab-about-lbl',ar?'عن البرنامج':'About');set('tab-support',t.tabSupport||'الدعم');
+  set('tab-overview',t.tabOv);set('tab-market',t.tabMkt);set('tab-portfolio',t.tabPort);set('tab-certs-lbl',t.tabCerts||'الشهادات');set('tab-notifs-lbl',ar?'الإشعارات':'Notifications');set('tab-about-lbl',ar?'عن البرنامج':'About');set('logout-lbl',ar?'خروج':'Logout');set('tab-support',t.tabSupport||'الدعم');
   set('d-charttitle',t.chartTitle);set('d-alloctitle',t.allocTitle);set('d-assets-lbl',t.assetsLbl);
   set('d-mkt-sec',t.mktSec);
   set('d-no-alloc',t.noAlloc);set('d-no-alloc-sub',t.noAllocSub);
