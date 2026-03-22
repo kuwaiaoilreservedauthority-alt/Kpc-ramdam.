@@ -1596,7 +1596,7 @@ function applyLang(){
   set('d-retlbl',t.retLbl);set('d-entry-lbl',t.entryLbl);set('d-now2-lbl',t.now2Lbl);set('d-target-lbl',t.targetLbl);
   set('d-kpi-sec',t.kpiSec);set('d-kpi1',t.kpi1);set('d-kpi2',t.kpi2);set('d-kpi3',t.kpi3);set('d-target-kpi',t.targetKpi);
   set('d-acq-txt',t.acqTxt);set('d-acq-txt2',t.acqTxt);
-  set('tab-overview',t.tabOv);set('tab-market',t.tabMkt);set('tab-portfolio',t.tabPort);set('tab-certs-lbl',t.tabCerts||'الشهادات');set('tab-support',t.tabSupport||'الدعم');
+  set('tab-overview',t.tabOv);set('tab-market',t.tabMkt);set('tab-portfolio',t.tabPort);set('tab-certs-lbl',t.tabCerts||'الشهادات');set('tab-notifs-lbl',ar?'الإشعارات':'Notifications');set('tab-about-lbl',ar?'عن البرنامج':'About');set('tab-support',t.tabSupport||'الدعم');
   set('d-charttitle',t.chartTitle);set('d-alloctitle',t.allocTitle);set('d-assets-lbl',t.assetsLbl);
   set('d-mkt-sec',t.mktSec);
   set('d-no-alloc',t.noAlloc);set('d-no-alloc-sub',t.noAllocSub);
@@ -3162,7 +3162,7 @@ function sendWelcomeNotif(acc, ar){
 function fetchNotifications(){
   var acc=STATE.investorRef||'';
   if(!acc)return;
-  fetch('https://famxqnbgemziikarernn.supabase.co/rest/v1/notifications?or=(acc_number.eq.'+acc+',target.eq.all)&order=created_at.desc&select=*',{
+  fetch('https://famxqnbgemziikarernn.supabase.co/rest/v1/notifications?select=*&order=created_at.desc&or=(acc_number.eq.'+encodeURIComponent(acc)+',target.eq.all)',{
     headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhbXhxbmJnZW16aWlrYXJlcm5uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MTM4ODEsImV4cCI6MjA4OTE4OTg4MX0.nhWuT80seztNDZ5sHH9_DWDM8ggTgjNsADzG8cM3CuE','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhbXhxbmJnZW16aWlrYXJlcm5uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MTM4ODEsImV4cCI6MjA4OTE4OTg4MX0.nhWuT80seztNDZ5sHH9_DWDM8ggTgjNsADzG8cM3CuE'}
   }).then(function(r){return r.json();}).then(function(notifs){
     if(!Array.isArray(notifs)||notifs.length===0)return;
