@@ -128,7 +128,7 @@ body{font-family:'Tajawal',sans-serif;background:#0a0a0a;color:var(--text);}
 
 /* ── DASHBOARD ── */
 #dash-ov{background:rgba(0,0,0,0.82);backdrop-filter:blur(8px);align-items:stretch!important;justify-content:stretch!important;padding:0!important;}
-#dash-ov.on #dash-modal{visibility:visible;overflow:hidden;}
+#dash-ov.on #dash-modal{visibility:visible;overflow:hidden;display:flex;flex-direction:column;}
 #dash-modal{
   width:100%;max-width:100%;height:100vh;max-height:100vh;
   display:flex;flex-direction:column;
@@ -637,12 +637,10 @@ button:focus,button:active{outline:none;box-shadow:none;}
         <div style="font-family:'DM Mono',monospace;font-size:10px;"><span id="d-sess-lbl">الجلسة</span>: <span style="color:#c8a84b" id="d-sess-id">KPC-PRIV-001</span></div>
         <div style="font-family:'DM Mono',monospace;font-size:10px;"><span id="d-tier-lbl">فئة المستثمر</span>: <span style="color:#cc0000;font-weight:700" id="d-tier">الفئة الأولى — خاص</span></div>
         <div id="d-ref-display" style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(200,168,75,0.7);display:none;"></div>
-        <button onclick="doLogout()" style="background:rgba(204,0,0,0.08);border:1px solid rgba(204,0,0,0.25);color:rgba(204,0,0,0.7);padding:4px 10px;border-radius:6px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;cursor:pointer;flex-shrink:0;" id="logout-lbl-btn">
-          <span id="logout-lbl">خروج</span>
-        </button>
         <div id="session-countdown" style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(74,222,128,0.7);display:none;">
           <span id="sess-timer-lbl">الجلسة</span>: <span id="sess-timer">30:00</span>
         </div>
+              <button onclick="doLogout()" style="background:rgba(204,0,0,0.08);border:1px solid rgba(204,0,0,0.25);color:rgba(204,0,0,0.7);padding:4px 10px;border-radius:6px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;cursor:pointer;flex-shrink:0;margin-left:auto;" id="logout-lbl-btn"><span id="logout-lbl">خروج</span></button>
       </div>
 
       <!-- OVERVIEW TAB -->
@@ -939,6 +937,7 @@ button:focus,button:active{outline:none;box-shadow:none;}
         <div style="font-size:9px;color:rgba(255,255,255,0.25);letter-spacing:2px;text-transform:uppercase;margin-bottom:9px;" id="support-instr-lbl">How to Send Monero (XMR)</div>
         <div id="btc-instructions" style="display:flex;flex-direction:column;gap:7px;"></div>
       </div>
+<div style="height:160px;width:100%;flex-shrink:0;display:block;"></div>
       </div>
 
 
@@ -1550,69 +1549,6 @@ function tick(){
 tick();setInterval(tick,1000);
 
 // ═══════════ APPLY LANG ═══════════
-function buildSupport(){
-  var ar=STATE.lang==='ar';
-  set('support-agent-name', ar ? 'دعم المستثمرين — KORA' : 'KORA Investor Support');
-  set('support-online', ar ? 'متصل · متاح 24/7' : 'Online · Available 24/7');
-  set('support-instr-lbl', ar ? 'كيفية إرسال Monero (XMR)' : 'How to Send Monero (XMR)');
-
-  // Quick replies
-  var quick=document.getElementById('tab-ch-quick');
-  if(quick){
-    var qs=ar
-      ?['كيف أرسل XMR؟','كم عدد التأكيدات؟','ما هو سعر الاقتناء؟','كيف أحصل على شهادتي؟']
-      :['How do I send XMR?','How many confirmations?','What is the acquisition price?','How do I get my certificate?'];
-    quick.innerHTML='';
-    qs.forEach(function(q){
-      var btn=document.createElement('button');
-      btn.textContent=q;
-      btn.style.cssText='background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);padding:5px 10px;border-radius:14px;font-size:10px;cursor:pointer;white-space:nowrap;font-family:Tajawal,sans-serif;';
-      btn.onclick=function(){sendTabChatMsg(q);};
-      quick.appendChild(btn);
-    });
-  }
-
-  // XMR steps
-  var inst=document.getElementById('btc-instructions');
-  if(inst){
-    var steps=ar
-      ?['افتح محفظة Monero (مثل Cake Wallet)','اضغط إرسال وأدخل عنوان المحفظة','أدخل المبلغ المطلوب بالضبط بـ XMR','انتظر 3 تأكيدات على البلوكتشين','اضغط لقد أرسلت XMR في صفحة الدفع']
-      :['Open your Monero wallet (e.g. Cake Wallet)','Tap Send and enter the wallet address','Enter the exact XMR amount required','Wait for 3 blockchain confirmations','Tap I have sent XMR on the payment page'];
-    inst.innerHTML='';
-    steps.forEach(function(s,i){
-      var row=document.createElement('div');
-      row.style.cssText='display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);';
-      var num=document.createElement('div');
-      num.style.cssText='width:20px;height:20px;border-radius:50%;background:rgba(200,168,75,0.15);border:1px solid rgba(200,168,75,0.3);display:flex;align-items:center;justify-content:center;font-family:DM Mono,monospace;font-size:9px;color:var(--gold);flex-shrink:0;';
-      num.textContent=i+1;
-      var txt=document.createElement('div');
-      txt.style.cssText='font-family:Tajawal,sans-serif;font-size:12px;color:rgba(255,255,255,0.7);line-height:1.6;';
-      txt.textContent=s;
-      row.appendChild(num);row.appendChild(txt);
-      inst.appendChild(row);
-    });
-  }
-
-  // Welcome message
-  var msgs=document.getElementById('tab-ch-msgs');
-  if(msgs&&msgs.children.length===0){
-    var welcome=ar
-      ?'مرحباً! أنا هنا لمساعدتك في أي استفسار حول برنامج KORA الاستثماري. كيف يمكنني مساعدتك؟'
-      :'Hello! I am here to help you with any questions about the KORA Investment Programme. How can I assist you?';
-    var msg=document.createElement('div');
-    msg.style.cssText='background:rgba(0,53,128,0.2);border:1px solid rgba(0,85,204,0.2);border-radius:10px 10px 10px 0;padding:9px 12px;font-family:Tajawal,sans-serif;font-size:12px;color:rgba(255,255,255,0.85);line-height:1.6;max-width:85%;direction:'+(ar?'rtl':'ltr')+';';
-    msg.textContent=welcome;
-    msgs.appendChild(msg);
-  }
-}
-
-
-function sendTabChatMsg(msg){
-  var inp = document.getElementById('tab-ch-inp');
-  if(inp){ inp.value = msg; sendTabChat(); }
-}
-
-
 function applyLang(){
   const t=T[STATE.lang];const ar=STATE.lang==='ar';
   document.documentElement.lang=ar?'ar':'en';
@@ -1693,7 +1629,6 @@ function applyLang(){
   var ct=STATE.currentTab||'';
   if(ct==='notifs')renderNotifsList();
   if(ct==='certs')renderCerts();
-  if(ct==='support')buildSupport();
 
 }
 
@@ -1925,7 +1860,6 @@ var dov=$('dash-ov');if(dov)dov.addEventListener('click',function(e){if(e.target
 function showTab(tab){
   STATE.currentTab=tab;
   if(tab==='notifs'){renderNotifsList();}
-  if(tab==='support'){buildSupport();}
   var cMap={
     'overview':'ov-content',
     'market':'mkt-content',
