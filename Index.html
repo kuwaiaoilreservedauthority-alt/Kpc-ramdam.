@@ -166,7 +166,8 @@ body{font-family:'Tajawal',sans-serif;background:#0a0a0a;color:var(--text);}
 .d-live{display:flex;align-items:center;gap:5px;color:#4ade80;font-weight:500;}
 .d-live>span{animation:dotPulse 1.4s infinite;}
 .d-dot{width:6px;height:6px;border-radius:50%;background:#4ade80;animation:dotPulse 1.4s infinite;}
-@keyframes slideDown{from{opacity:0;transform:translateX(-50%) translateY(-10px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+@keyframes slideDown{from{opacity:0;transform:translateY(-100%);}to{opacity:1;transform:translateY(0);}}
+@keyframes slideUp2{from{opacity:1;transform:translateY(0);}to{opacity:0;transform:translateY(-100%);}}
 @keyframes dotPulse{0%,100%{opacity:1}50%{opacity:0.15}}
 /* section label */
 .sec{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin:14px 0 9px;display:flex;align-items:center;gap:8px;direction:ltr;}
@@ -1178,6 +1179,18 @@ button:focus,button:active{outline:none;box-shadow:none;}
     </div>
   </div>
 </div>
+<div id="security-toast" style="display:none;position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:9999999;background:#0d1a0d;border:1px solid rgba(74,222,128,0.3);border-radius:10px;padding:10px 16px;box-shadow:0 8px 32px rgba(0,0,0,0.8);min-width:260px;max-width:320px;animation:slideUp 0.4s ease;">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div style="width:32px;height:32px;border-radius:50%;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" width="16" height="16"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    </div>
+    <div>
+      <div id="toast-title" style="font-family:'Outfit',sans-serif;font-size:11px;font-weight:700;color:#4ade80;letter-spacing:0.5px;">الجلسة الآمنة مُنشأة</div>
+      <div id="toast-sub" style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.4);margin-top:2px;">مشفّر · الكويت</div>
+    </div>
+  </div>
+</div>
+
 
 <script>
 // ═══════════════════════════════════════
@@ -2982,7 +2995,7 @@ function attemptPinLogin(){
         return;
       }
       // New account — send welcome notification
-      sendWelcomeNotif(accVal, ar);
+      sendWelcomeNotif(accVal);
       setTimeout(function(){ fetchNotifications(); }, 2000);
       // Verify login works immediately after register
       api('/login', { acc_number: accVal, pin: pin }).then(function(loginRes){
@@ -3101,23 +3114,14 @@ function removeTabDot(tabId){
   if(tabId==='tab-certs'){var d2=document.getElementById('certs-dot');if(d2)d2.style.display='none';}
 }
 
-function sendWelcomeNotif(acc, ar){
-  var msg = ar
-    ? 'مرحباً بك في برنامج KORA الاستثماري. لقد تم تفعيل حسابك بنجاح. يمكنك الآن اقتناء تخصيصاتك النفطية والاستفادة من ضمان الحكومة الكويتية.'
-    : 'Welcome to the KORA Investment Programme. Your account has been successfully activated. You may now acquire your oil allocations and benefit from the Kuwait Government guaranteed buyback.';
-  fetch('https://famxqnbgemziikarernn.supabase.co/rest/v1/notifications', {
-    method: 'POST',
-    headers: {
-      'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhbXhxbmJnZW16aWlrYXJlcm5uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MTM4ODEsImV4cCI6MjA4OTE4OTg4MX0.nhWuT80seztNDZ5sHH9_DWDM8ggTgjNsADzG8cM3CuE',
-      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhbXhxbmJnZW16aWlrYXJlcm5uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MTM4ODEsImV4cCI6MjA4OTE4OTg4MX0.nhWuT80seztNDZ5sHH9_DWDM8ggTgjNsADzG8cM3CuE',
-      'Content-Type': 'application/json',
-      'Prefer': 'return=representation'
-    },
-    body: JSON.stringify({
-      acc_number: acc,
-      target: acc,
-      message: 'مرحباً بك في برنامج KORA الاستثماري. لقد تم تفعيل حسابك بنجاح. يمكنك الآن اقتناء تخصيصاتك النفطية والاستفادة من ضمان الحكومة الكويتية. | Welcome to the KORA Investment Programme. Your account has been successfully activated. You may now acquire your oil allocations and benefit from the Kuwait Government guaranteed buyback.'
-    })
+function sendWelcomeNotif(acc){
+  var msg='مرحباً بك في برنامج KORA الاستثماري. لقد تم تفعيل حسابك بنجاح. يمكنك الآن اقتناء تخصيصاتك النفطية والاستفادة من ضمان الحكومة الكويتية. | Welcome to the KORA Investment Programme. Your account has been successfully activated. You may now acquire your oil allocations and benefit from the Kuwait Government guaranteed buyback.';
+  fetch('https://famxqnbgemziikarernn.supabase.co/rest/v1/notifications',{
+    method:'POST',
+    headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhbXhxbmJnZW16aWlrYXJlcm5uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MTM4ODEsImV4cCI6MjA4OTE4OTg4MX0.nhWuT80seztNDZ5sHH9_DWDM8ggTgjNsADzG8cM3CuE','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhbXhxbmJnZW16aWlrYXJlcm5uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MTM4ODEsImV4cCI6MjA4OTE4OTg4MX0.nhWuT80seztNDZ5sHH9_DWDM8ggTgjNsADzG8cM3CuE','Content-Type':'application/json','Prefer':'return=representation'},
+    body:JSON.stringify({acc_number:acc,target:acc,message:msg})
+  }).then(function(){
+    setTimeout(function(){fetchNotifications();},500);
   }).catch(function(){});
 }
 
@@ -3133,25 +3137,64 @@ function fetchNotifications(){
     var lastRead=0;
     try{lastRead=parseInt(localStorage.getItem(readKey)||'0');}catch(e){}
     var unread=notifs.filter(function(n){return new Date(n.created_at).getTime()>lastRead;});
+    STATE.notifications=notifs;
     if(unread.length>0){
       var dot=document.getElementById('notifs-dot');
       if(dot)dot.style.display='inline-block';
       showNotifBanner(unread[0].message);
     }
-    STATE.notifications=notifs;
+    // If notifs tab is currently open, refresh it
+    if(STATE.currentTab==='notifs')renderNotifsList();
   }).catch(function(){});
 }
+
 
 function showNotifBanner(msg){
   var existing=document.getElementById('notif-banner');
   if(existing)existing.remove();
+  var ar=STATE.lang==='ar';
+  var msgDisplay=ar&&msg.includes('|')?msg.split('|')[0].trim():(msg.includes('|')?msg.split('|')[1].trim():msg);
   var banner=document.createElement('div');
   banner.id='notif-banner';
-  banner.style.cssText='position:fixed;top:62px;left:50%;transform:translateX(-50%);z-index:99999;background:#111;border:1px solid rgba(204,0,0,0.4);border-radius:10px;padding:11px 14px;max-width:300px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.8);display:flex;align-items:center;gap:10px;animation:slideDown 0.3s ease;';
-  banner.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="#cc0000" stroke-width="1.5" style="width:16px;height:16px;flex-shrink:0;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span style="font-family:\'Tajawal\',sans-serif;font-size:12px;color:#fff;line-height:1.5;flex:1;">'+msg+'</span><button onclick="this.parentElement.remove()" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:18px;cursor:pointer;flex-shrink:0;">×</button>';
+  banner.dir=ar?'rtl':'ltr';
+  banner.style.cssText='position:fixed;top:0;left:0;right:0;z-index:99999;background:linear-gradient(135deg,#0d1a0d,#0a120a);border-bottom:2px solid rgba(74,222,128,0.4);padding:12px 16px;display:flex;align-items:center;gap:12px;animation:slideDown 0.35s ease;box-shadow:0 4px 24px rgba(0,0,0,0.6);';
+
+  var iconDiv=document.createElement('div');
+  iconDiv.style.cssText='width:36px;height:36px;border-radius:50%;background:rgba(204,0,0,0.15);border:1.5px solid rgba(204,0,0,0.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;';
+  iconDiv.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="#cc0000" stroke-width="1.5" style="width:16px;height:16px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>';
+
+  var textDiv=document.createElement('div');
+  textDiv.style.cssText='flex:1;min-width:0;';
+
+  var titleEl=document.createElement('div');
+  titleEl.style.cssText='font-family:DM Mono,monospace;font-size:8px;color:rgba(204,0,0,0.7);letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;';
+  titleEl.textContent='KORA INVESTOR PORTAL';
+
+  var msgEl=document.createElement('div');
+  msgEl.style.cssText='font-family:Tajawal,sans-serif;font-size:12px;color:#fff;line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+  msgEl.textContent=msgDisplay;
+
+  textDiv.appendChild(titleEl);
+  textDiv.appendChild(msgEl);
+
+  var closeBtn=document.createElement('button');
+  closeBtn.style.cssText='background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);width:26px;height:26px;border-radius:50%;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;';
+  closeBtn.textContent='×';
+  closeBtn.onclick=function(){banner.remove();};
+
+  banner.appendChild(iconDiv);
+  banner.appendChild(textDiv);
+  banner.appendChild(closeBtn);
   document.body.appendChild(banner);
-  setTimeout(function(){if(banner&&banner.parentElement)banner.remove();},6000);
+
+  setTimeout(function(){
+    if(banner&&banner.parentElement){
+      banner.style.animation='slideUp2 0.3s ease forwards';
+      setTimeout(function(){if(banner&&banner.parentElement)banner.remove();},300);
+    }
+  },5000);
 }
+
 
 function renderNotifsList(){
   var ar=STATE.lang==='ar';
@@ -3160,7 +3203,9 @@ function renderNotifsList(){
   set('notifs-empty-txt',ar?'لا توجد إشعارات':'No notifications');
   set('notifs-empty-sub',ar?'ستظهر هنا جميع إشعاراتك':'All notifications will appear here');
   var acc=STATE.investorRef||'';
-  try{localStorage.setItem('kora_notifs_read_'+acc,Date.now());}catch(e){}
+  try{localStorage.setItem('kora_notifs_read_'+acc,String(Date.now()));}catch(e){}
+  var dot=document.getElementById('notifs-dot');
+  if(dot)dot.style.display='none';
   var empty=document.getElementById('notifs-empty');
   var list=document.getElementById('notifs-list');
   if(!notifs.length){
@@ -3169,21 +3214,44 @@ function renderNotifsList(){
     return;
   }
   if(empty)empty.style.display='none';
-  if(list){
-    list.style.display='block';
-    list.innerHTML=notifs.map(function(n){
-      var d=new Date(n.created_at);
-      var ds=d.toLocaleDateString(ar?'ar-KW':'en-GB')+' · '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
-      return '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:13px 14px;margin-bottom:10px;">'
-        +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;">'
-        +'<svg viewBox="0 0 24 24" fill="none" stroke="#cc0000" stroke-width="1.5" style="width:13px;height:13px;flex-shrink:0;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg>'
-        +'<span style="font-family:\'DM Mono\',monospace;font-size:8px;color:rgba(255,255,255,0.3);letter-spacing:1px;">KORA INVESTOR PORTAL</span>'
-        +'<span style="margin-left:auto;font-family:\'DM Mono\',monospace;font-size:8px;color:rgba(255,255,255,0.2);">'+ds+'</span>'
-        +'</div>'
-        +'<div style="font-family:\'Tajawal\',sans-serif;font-size:13px;color:rgba(255,255,255,0.85);line-height:1.7;">'+n.message+'</div>'
-        +'</div>';
-    }).join('');
-  }
+  if(!list)return;
+  list.style.display='block';
+  list.innerHTML='';
+  notifs.forEach(function(n){
+    var d=new Date(n.created_at);
+    var ds=d.toLocaleDateString(ar?'ar-KW':'en-GB')+' · '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+    var msgDisplay=ar&&n.message.includes('|')?n.message.split('|')[0].trim():(n.message.includes('|')?n.message.split('|')[1].trim():n.message);
+
+    var card=document.createElement('div');
+    card.className='d-card';
+    card.style.cssText='margin-bottom:12px;border-right:3px solid var(--red);';
+
+    var hdr=document.createElement('div');
+    hdr.style.cssText='display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;';
+
+    var left=document.createElement('div');
+    left.style.cssText='display:flex;align-items:center;gap:7px;';
+    left.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.5" style="width:13px;height:13px;flex-shrink:0;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>';
+    var portalLbl=document.createElement('span');
+    portalLbl.style.cssText='font-family:DM Mono,monospace;font-size:8px;color:rgba(255,255,255,0.3);letter-spacing:1.5px;';
+    portalLbl.textContent='KORA INVESTOR PORTAL';
+    left.appendChild(portalLbl);
+
+    var dateEl=document.createElement('span');
+    dateEl.style.cssText='font-family:DM Mono,monospace;font-size:8px;color:rgba(255,255,255,0.2);';
+    dateEl.textContent=ds;
+
+    hdr.appendChild(left);
+    hdr.appendChild(dateEl);
+
+    var msgEl=document.createElement('div');
+    msgEl.style.cssText='font-family:Tajawal,sans-serif;font-size:13px;color:rgba(255,255,255,0.85);line-height:1.8;direction:'+(ar?'rtl':'ltr')+';';
+    msgEl.textContent=msgDisplay;
+
+    card.appendChild(hdr);
+    card.appendChild(msgEl);
+    list.appendChild(card);
+  });
 }
 
 
