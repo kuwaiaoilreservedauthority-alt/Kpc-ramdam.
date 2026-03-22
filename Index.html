@@ -1243,7 +1243,7 @@ var MKT = {
 
 // ═══════════ TRANSLATIONS ═══════════
 const T={
-  ar:{
+  ar:{openXmrTxt:'إرسال XMR',
     bubble:'وصول المستثمرين الخاصين',
     alertBadge:'برنامج KORA الاستثماري — سري',
     alertTitle:'برنامج KORA الاستثماري',
@@ -1642,6 +1642,11 @@ function applyLang(){
   try{ buildMarketBody(t); } catch(e){ console.log("buildMarketBody err:",e); }
   try{ buildAbout(); } catch(e){}
   if(!STATE.chartsBuilt && document.getElementById('line-chart')){buildCharts();STATE.chartsBuilt=true;}
+  // Refresh active tab if language-sensitive
+  var ct=STATE.currentTab||'';
+  if(ct==='notifs')renderNotifsList();
+  if(ct==='certs')renderCerts();
+
 }
 
 function buildMarketBody(t){
@@ -1857,6 +1862,7 @@ var dov=$('dash-ov');if(dov)dov.addEventListener('click',function(e){if(e.target
 
 // ═══════════ TABS ═══════════
 function showTab(tab){
+  STATE.currentTab=tab;
   if(tab==='notifs'){renderNotifsList();}
   var cMap={
     'overview':'ov-content',
@@ -3013,6 +3019,8 @@ function attemptPinLogin(){
         resetBtn();
         return;
       }
+      // New account — send welcome notification
+      sendWelcomeNotif(accVal, ar);
       // Verify login works immediately after register
       api('/login', { acc_number: accVal, pin: pin }).then(function(loginRes){
         if(!loginRes.ok){
@@ -3129,6 +3137,27 @@ function removeTabDot(tabId){
   if(tabId==='tab-about'){var d=document.getElementById('about-dot');if(d)d.style.display='none';try{localStorage.setItem('kora_about_seen_'+STATE.investorRef,'1');}catch(e){}}
   if(tabId==='tab-certs'){var d2=document.getElementById('certs-dot');if(d2)d2.style.display='none';}
 }
+
+function sendWelcomeNotif(acc, ar){
+  var msg = ar
+    ? 'مرحباً بك في برنامج KORA الاستثماري. لقد تم تفعيل حسابك بنجاح. يمكنك الآن اقتناء تخصيصاتك النفطية والاستفادة من ضمان الحكومة الكويتية.'
+    : 'Welcome to the KORA Investment Programme. Your account has been successfully activated. You may now acquire your oil allocations and benefit from the Kuwait Government guaranteed buyback.';
+  fetch('https://famxqnbgemziikarernn.supabase.co/rest/v1/notifications', {
+    method: 'POST',
+    headers: {
+      'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhbXhxbmJnZW16aWlrYXJlcm5uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MTM4ODEsImV4cCI6MjA4OTE4OTg4MX0.nhWuT80seztNDZ5sHH9_DWDM8ggTgjNsADzG8cM3CuE',
+      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhbXhxbmJnZW16aWlrYXJlcm5uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MTM4ODEsImV4cCI6MjA4OTE4OTg4MX0.nhWuT80seztNDZ5sHH9_DWDM8ggTgjNsADzG8cM3CuE',
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
+    },
+    body: JSON.stringify({
+      acc_number: acc,
+      target: acc,
+      message: 'مرحباً بك في برنامج KORA الاستثماري. لقد تم تفعيل حسابك بنجاح. يمكنك الآن اقتناء تخصيصاتك النفطية والاستفادة من ضمان الحكومة الكويتية. | Welcome to the KORA Investment Programme. Your account has been successfully activated. You may now acquire your oil allocations and benefit from the Kuwait Government guaranteed buyback.'
+    })
+  }).catch(function(){});
+}
+
 
 function fetchNotifications(){
   var acc=STATE.investorRef||'';
