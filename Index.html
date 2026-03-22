@@ -1803,7 +1803,7 @@ function updateCurrencyDisplay(){
   var pwSub = document.getElementById('pre-war-sub');
   if(pwSym) pwSym.textContent = mainSym+' ';
   if(pwVal) pwVal.textContent = isKwd ? (PRE*USD_KWD).toFixed(3) : PRE.toFixed(2);
-  if(pwSub) pwSub.textContent = subSym+' '+(isKwd ? '$'+PRE.toFixed(2) : 'KWD '+(PRE*USD_KWD).toFixed(3));
+  if(pwSub) pwSub.textContent = subSym+' '+(isKwd ? 'USD '+PRE.toFixed(2) : 'KWD '+(PRE*USD_KWD).toFixed(3));
 
   // Post-war card
   var postSym = document.getElementById('post-war-sym');
@@ -1811,7 +1811,7 @@ function updateCurrencyDisplay(){
   var postSub = document.getElementById('post-war-sub');
   if(postSym) postSym.textContent = mainSym+' ';
   if(postVal) postVal.textContent = isKwd ? (POST*USD_KWD).toFixed(3) : POST.toFixed(2);
-  if(postSub) postSub.textContent = subSym+' '+(isKwd ? '$'+POST.toFixed(2) : 'KWD '+(POST*USD_KWD).toFixed(3));
+  if(postSub) postSub.textContent = subSym+' '+(isKwd ? 'USD '+POST.toFixed(2) : 'KWD '+(POST*USD_KWD).toFixed(3));
 
   // Current brent price
   var bKwd = document.getElementById('live-brent-kwd');
@@ -1819,15 +1819,15 @@ function updateCurrencyDisplay(){
   var bSmall = document.querySelector('#live-brent-price small');
   if(bSmall) bSmall.textContent = mainSym+' ';
   if(bKwd) bKwd.textContent = isKwd ? (BRENT*USD_KWD).toFixed(3) : BRENT.toFixed(2);
-  if(bUsd) bUsd.textContent = isKwd ? '$'+BRENT.toFixed(2) : 'KWD '+(BRENT*USD_KWD).toFixed(3);
+  if(bUsd) bUsd.textContent = isKwd ? 'USD '+BRENT.toFixed(2) : 'KWD '+(BRENT*USD_KWD).toFixed(3);
 
   // Return bar marks
   var retEntry = document.getElementById('d-entry-lbl');
   if(retEntry && retEntry.parentElement){
-    retEntry.parentElement.firstChild.textContent = (isKwd?'KWD '+(PRE*USD_KWD).toFixed(2):'$'+PRE)+' ';
+    retEntry.parentElement.firstChild.textContent = (isKwd?'KWD '+(PRE*USD_KWD).toFixed(2):'USD '+PRE)+' ';
   }
   var retNow = document.getElementById('ret-now-lbl');
-  if(retNow) retNow.firstChild.textContent = (isKwd?'KWD '+(BRENT*USD_KWD).toFixed(2):'$'+BRENT.toFixed(2))+' ';
+  if(retNow) retNow.firstChild.textContent = (isKwd?'KWD '+(BRENT*USD_KWD).toFixed(2):'USD '+BRENT.toFixed(2))+' ';
 
   // Portfolio label
   var portLbl = document.getElementById('d-portlbl');
@@ -1841,7 +1841,7 @@ function updateCurrencyDisplay(){
 
   // Deposit calc pre-war
   var dcPre = document.getElementById('dc-pre-val');
-  if(dcPre) dcPre.textContent = isKwd ? 'KWD '+(PRE*USD_KWD).toFixed(3)+'/bbl' : '$'+PRE+'/bbl';
+  if(dcPre) dcPre.textContent = isKwd ? 'KWD '+(PRE*USD_KWD).toFixed(3)+'/bbl' : 'USD '+PRE+'/bbl';
 }
 
 
