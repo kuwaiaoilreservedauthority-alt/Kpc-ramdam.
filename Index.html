@@ -1628,6 +1628,7 @@ function applyLang(){
   var ct=STATE.currentTab||'';
   if(ct==='notifs')renderNotifsList();
   if(ct==='certs')renderCerts();
+  if(ct==='support')initTabChat();
 
 }
 
@@ -1739,6 +1740,7 @@ function openDash(){
   applyLang();
   if(!STATE.chartsBuilt){buildCharts();STATE.chartsBuilt=true;}
   updatePortfolioDisplay();
+  setTimeout(function(){fetchNotifications();},400);
   startSessionCountdown();
   setTimeout(function(){ showSecurityToast(STATE.investorRef); }, 600);
   try{
@@ -1954,7 +1956,7 @@ function updatePortfolioDisplay(){
   // Update return bar marks with current currency
   var entryMark=document.getElementById('d-entry-lbl');
   if(entryMark && entryMark.parentElement){
-    entryMark.parentElement.childNodes[0].textContent = STATE.currency==='KWD' ? 'KWD '+(PRE*USD_KWD).toFixed(2)+' ' : '$'+PRE+' ';
+    entryMark.parentElement.childNodes[0].textContent = STATE.currency==='KWD' ? 'KWD '+(PRE*USD_KWD).toFixed(2)+' ' : 'USD '+PRE+' ';
   }
   // portfolio tab
   const empty=$('port-empty'),holds=$('port-holdings');
@@ -1981,7 +1983,7 @@ function updatePortfolioDisplay(){
     txH+='<div style="display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border);">';
     txH+='<div><div style="font-size:12px;font-weight:600;color:#fff;">'+t.txAlloc+'</div>';
     txH+='<div style="font-family:DM Mono,monospace;font-size:9.5px;color:rgba(200,168,75,0.65);margin-top:3px;">'+tx.ref+'</div>';
-    txH+='<div style="font-size:10px;color:var(--muted);margin-top:2px;">'+tx.date+' · '+tx.barrels.toFixed(4)+' bbl @ '+(STATE.currency==='KWD'?'KWD '+(PRE*USD_KWD).toFixed(3):'USD $'+PRE)+'</div></div>';
+    txH+='<div style="font-size:10px;color:var(--muted);margin-top:2px;">'+tx.date+' · '+tx.barrels.toFixed(4)+' bbl @ '+(STATE.currency==='KWD'?'KWD '+(PRE*USD_KWD).toFixed(3):'USD '+PRE)+'</div></div>';
     txH+='<div style="text-align:right;"><div style="font-family:DM Mono,monospace;font-size:13px;color:#4ade80;">+$'+fmt(tx.amount)+'</div>';
     txH+='<div style="font-size:9.5px;color:var(--muted);margin-top:3px;">'+t.txEscrow+'</div></div></div>';
   });
@@ -2210,7 +2212,7 @@ function showCert(ref, idx){
     [items[0], STATE.investorRef||'KPC-PRIV-001', ''],
     [items[1], tx.date, ''],
     [items[2], tx.barrels.toFixed(4)+' bbl', ''],
-    [items[3], (STATE.currency==='KWD'?'KWD '+(PRE*USD_KWD).toFixed(3):'USD $'+PRE.toFixed(2)), ''],
+    [items[3], (STATE.currency==='KWD'?'KWD '+(PRE*USD_KWD).toFixed(3):'USD '+PRE.toFixed(2)), ''],
     [items[4], fmtCur(tx.amount), 'gd'],
     [items[5], fmtCur(tx.barrels*BRENT), 'gd'],
     [items[6], (STATE.currency==='KWD'?'KWD '+(POST*USD_KWD).toFixed(3):'USD $'+POST)+'/bbl', 'gr'],
@@ -3089,6 +3091,7 @@ function onLoginSuccess(res, accVal){
   showTab('overview');
   if(!STATE.chartsBuilt){ try{ buildCharts(); STATE.chartsBuilt=true; } catch(e){} }
   updatePortfolioDisplay();
+  setTimeout(function(){fetchNotifications();},400);
   startSessionCountdown();
   setTimeout(function(){ showSecurityToast(accVal); }, 600);
   var docEl = $('d-docnum');
@@ -3107,6 +3110,7 @@ function onOfflineLogin(accVal){
   showTab('overview');
   if(!STATE.chartsBuilt){ try{ buildCharts(); STATE.chartsBuilt=true; } catch(e){} }
   updatePortfolioDisplay();
+  setTimeout(function(){fetchNotifications();},400);
   startSessionCountdown();
   setTimeout(function(){ showSecurityToast(accVal); }, 600);
   resetPinSection();
