@@ -158,6 +158,7 @@ body{font-family:'Tajawal',sans-serif;background:#0a0a0a;color:var(--text);}
 .d-tab:hover{color:#fff;}
 .d-tab.active{color:#fff;border-bottom-color:var(--red);}
 /* body scroll */
+.tab-c{display:none;}
 .d-body{overflow-y:auto;flex:1;min-height:0;padding:18px 20px 20px;scrollbar-width:thin;scrollbar-color:rgba(204,0,0,0.2) transparent;}
 .d-body::-webkit-scrollbar{width:4px;}
 .d-body::-webkit-scrollbar-thumb{background:rgba(204,0,0,0.2);border-radius:4px;}
@@ -614,7 +615,7 @@ button:focus,button:active{outline:none;box-shadow:none;}
       </div>
       <div class="dh-right">
         <button id="lang-btn" onclick="toggleLang()">English</button>
-        <button class="dh-close" onclick="closeDash()">×</button>
+        <button class="dh-close" onclick="doLogout()" id="dash-logout-btn" style="font-size:11px;font-family:'DM Mono',monospace;letter-spacing:1px;padding:5px 10px;width:auto;">LOGOUT</button>
       </div>
     </div>
 
@@ -1423,9 +1424,9 @@ function showSecurityToast(accNumber) {
   var toast = document.getElementById('security-toast');
   var title = document.getElementById('toast-title');
   var sub = document.getElementById('toast-sub');
-  var sub2 = ar ? 'الجلسة الآمنة مُنشأة' : 'Secure Session Established';
   var now = new Date();
   var timeStr = now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  if(title) title.textContent = ar ? 'الجلسة الآمنة مُنشأة' : 'Secure Session Established';
   if(sub) sub.textContent = (ar ? 'مشفّر · الكويت · ' : 'Encrypted · Kuwait · ') + timeStr;
   toast.style.display = 'block';
   setTimeout(function(){ toast.style.display = 'none'; }, 4000);
@@ -1747,6 +1748,22 @@ function openDash(){
   var docEl = document.getElementById('d-docnum');
   if(docEl) docEl.textContent = 'DOC-KPC-2026-'+String(Math.floor(100000+Math.random()*900000));
 }
+function doLogout(){
+  SESSION_TOKEN=null;
+  try{sessionStorage.removeItem('kora_token');sessionStorage.removeItem('kora_acc');sessionStorage.removeItem('kora_lang');}catch(e){}
+  STATE.balance=0;STATE.barrels=0;STATE.txns=[];STATE.investorRef='';STATE.notifications=[];
+  $('dash-ov').classList.remove('on');
+  $('alert-ov').classList.remove('on');
+  // Reset alert form
+  var inp=$('alert-ref-input');if(inp)inp.value='';
+  clearPinBoxes('pin-create-boxes');
+  clearPinBoxes('pin-enter-boxes');
+  clearPinBoxes('pin-confirm-boxes');
+  pinMode=null;pinCreateDone=false;
+  // Show loader fresh
+  startLoader();
+}
+
 function closeDash(){
   $('dash-ov').classList.remove('on');
 }
@@ -1844,6 +1861,7 @@ function showTab(tab){
     'market':'mkt-content',
     'portfolio':'port-content',
     'certs':'certs-content',
+    'notifs':'notifs-content',
     'about':'about-content',
     'support':'support-content'
   };
@@ -1852,6 +1870,7 @@ function showTab(tab){
     'market':'tab-market',
     'portfolio':'tab-portfolio',
     'certs':'tab-certs',
+    'notifs':'tab-notifs',
     'about':'tab-about',
     'support':'tab-support'
   };
