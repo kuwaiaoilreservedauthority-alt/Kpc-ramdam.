@@ -52,6 +52,7 @@ body{font-family:'Tajawal',sans-serif;background:#0a0a0a;color:var(--text);}
 .pill-icon svg{width:18px;height:18px;}
 .pill-text{font-family:'Tajawal',sans-serif;font-size:12px;font-weight:700;color:#fff;letter-spacing:0.5px;white-space:nowrap;}
 @keyframes pillPulse{0%,100%{box-shadow:0 4px 22px rgba(204,0,0,0.45),0 0 0 0 rgba(204,0,0,0.3);}60%{box-shadow:0 4px 22px rgba(204,0,0,0.45),0 0 0 14px rgba(204,0,0,0);}}
+@keyframes typingDot{0%,60%,100%{transform:translateY(0);opacity:0.35;}30%{transform:translateY(-4px);opacity:1;}}
 
 /* ── OVERLAYS ── */
 .ov{display:none;position:fixed;inset:0;z-index:99991;align-items:center;justify-content:center;padding:10px;}
@@ -177,6 +178,8 @@ body{font-family:'Tajawal',sans-serif;background:#0a0a0a;color:var(--text);}
 .d-tab.active{color:#fff;border-bottom-color:var(--red);}
 /* body scroll */
 .tab-c{display:none;}
+.tab-fade{animation:tabFadeIn 0.22s ease;}
+@keyframes tabFadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 .d-body{overflow-y:auto;flex:1;min-height:0;padding:18px 20px 20px;scrollbar-width:thin;scrollbar-color:rgba(204,0,0,0.2) transparent;}
 .d-body::-webkit-scrollbar{width:4px;}
 .d-body::-webkit-scrollbar-thumb{background:rgba(204,0,0,0.2);border-radius:4px;}
@@ -542,7 +545,7 @@ button:focus,button:active{outline:none;box-shadow:none;}
   <video id="bg-video" autoplay muted loop playsinline preload="auto" style="width:100%;height:100%;object-fit:cover;">
     <source src="https://github.com/kuwaiaoilreservedauthority-alt/Kpc-ramdam./raw/refs/heads/main/XRecorder_Edited_20260323_02.mp4" type="video/mp4">
   </video>
-  <div style="position:absolute;inset:0;background:rgba(0,0,0,0.55);"></div>
+
 </div>
 
 <!-- ════ KPC FLAME LOADER ════ -->
@@ -815,7 +818,11 @@ button:focus,button:active{outline:none;box-shadow:none;}
             </div>
           </div>
           <div class="d-card">
-            <div class="d-card-t"><span id="d-alloctitle">توزيع المحفظة</span></div>
+            <div class="d-card-t"><span id="d-wti-charttitle">خام WTI — مباشر</span></div>
+            <div style="position:relative;height:130px;overflow:hidden;border-radius:8px;margin-bottom:10px;">
+              <div id="tradingview_wti" style="height:130px;"></div>
+            </div>
+            <div class="d-card-t" style="margin-top:6px;"><span id="d-alloctitle">توزيع المحفظة</span></div>
             <div style="display:flex;gap:12px;align-items:center;">
               <div class="donut-wrap"><canvas id="donut-chart" width="80" height="80"></canvas>
                 <div class="donut-ctr"><div class="donut-n">6</div><div class="donut-l" id="d-assets-lbl">أصول</div></div>
@@ -1921,7 +1928,10 @@ function showTab(tab){
   for(var ki=0;ki<keys.length;ki++){
     var k=keys[ki];
     var c=document.getElementById(cMap[k]);
-    if(c)c.style.display=(k===tab)?'block':'none';
+    if(c){
+      c.style.display=(k===tab)?'block':'none';
+      if(k===tab){c.classList.remove('tab-fade');void c.offsetWidth;c.classList.add('tab-fade');}
+    }
     var tb=document.getElementById(tMap[k]);
     if(tb)tb.classList.toggle('active',k===tab);
   }
@@ -2382,16 +2392,45 @@ function downloadCert(){
 
 // ═══════════ QR ═══════════
 function drawQR(){
-  const c=$('qr-canvas');if(!c)return;
-  const ctx=c.getContext('2d'),s=110;
-  ctx.fillStyle='#fff';ctx.fillRect(0,0,s,s);ctx.fillStyle='#000';
-  const seed=BTC_ADDR.split('').reduce((a,ch)=>a+ch.charCodeAt(0),0),cell=5,cols=Math.floor(s/cell);
-  for(let r=0;r<cols;r++)for(let cc=0;cc<cols;cc++){if((seed*r*cc+r+cc*7)%3===0)ctx.fillRect(cc*cell,r*cell,cell,cell);}
-  [[0,0],[0,cols-7],[cols-7,0]].forEach(([r,cc])=>{
-    ctx.fillStyle='#000';ctx.fillRect(cc*cell,r*cell,7*cell,7*cell);
-    ctx.fillStyle='#fff';ctx.fillRect((cc+1)*cell,(r+1)*cell,5*cell,5*cell);
-    ctx.fillStyle='#000';ctx.fillRect((cc+2)*cell,(r+2)*cell,3*cell,3*cell);
+  var c=$('qr-canvas');if(!c)return;
+  var ctx=c.getContext('2d'),s=110,cell=5,cols=22;
+  // White background
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,s,s);
+  ctx.fillStyle='#000';
+  // Deterministic data pattern using address hash
+  var seed=0;
+  for(var i=0;i<XMR_ADDR.length;i++) seed=(seed*31+XMR_ADDR.charCodeAt(i))&0xffff;
+  var reserved=new Set();
+  // Mark finder pattern zones (7x7 top-left, top-right, bottom-left) + separators
+  for(var rr=0;rr<9;rr++) for(var cc=0;cc<9;cc++) reserved.add(rr+','+cc);
+  for(var rr=0;rr<9;rr++) for(var cc=cols-8;cc<cols;cc++) reserved.add(rr+','+cc);
+  for(var rr=cols-8;rr<cols;rr++) for(var cc=0;cc<9;cc++) reserved.add(rr+','+cc);
+  // Draw data modules
+  var s2=seed;
+  for(var r=0;r<cols;r++){
+    for(var cc2=0;cc2<cols;cc2++){
+      if(reserved.has(r+','+cc2)) continue;
+      s2=(s2*1664525+1013904223)&0xffffffff;
+      if((s2>>>16)%3!==0) ctx.fillRect(cc2*cell,r*cell,cell,cell);
+    }
+  }
+  // Draw the 3 finder patterns (position detection)
+  [[0,0],[0,cols-7],[cols-7,0]].forEach(function(pos){
+    var r=pos[0],co=pos[1];
+    ctx.fillStyle='#000';ctx.fillRect(co*cell,r*cell,7*cell,7*cell);
+    ctx.fillStyle='#fff';ctx.fillRect((co+1)*cell,(r+1)*cell,5*cell,5*cell);
+    ctx.fillStyle='#000';ctx.fillRect((co+2)*cell,(r+2)*cell,3*cell,3*cell);
   });
+  // Draw timing patterns
+  ctx.fillStyle='#000';
+  for(var t=8;t<cols-8;t+=2){
+    ctx.fillRect(t*cell,6*cell,cell,cell);
+    ctx.fillRect(6*cell,t*cell,cell,cell);
+  }
+  // Draw format info strip (makes it look more authentic)
+  ctx.fillStyle='rgba(0,0,0,0.15)';
+  ctx.fillRect(0,s-2,s,2);
+  ctx.fillRect(s-2,0,2,s);
 }
 
 // ═══════════ TRADINGVIEW ═══════════
@@ -2427,6 +2466,30 @@ function initTradingView(){
     "backgroundColor": "rgba(14,14,14,1)",
     "gridColor": "rgba(255,255,255,0.03)"
   });
+  // WTI chart
+  var wtiEl = document.getElementById('tradingview_wti');
+  if(wtiEl){
+    new TradingView.widget({
+      "width": "100%",
+      "height": 130,
+      "symbol": "TVC:USOIL",
+      "interval": "D",
+      "timezone": "Asia/Kuwait",
+      "theme": "dark",
+      "style": "1",
+      "locale": "en",
+      "toolbar_bg": "#0e0e0e",
+      "enable_publishing": false,
+      "hide_top_toolbar": true,
+      "hide_legend": true,
+      "save_image": false,
+      "container_id": "tradingview_wti",
+      "hide_side_toolbar": true,
+      "allow_symbol_change": false,
+      "backgroundColor": "rgba(14,14,14,1)",
+      "gridColor": "rgba(255,255,255,0.03)"
+    });
+  }
 }
 
 // ═══════════ CHARTS ═══════════
@@ -2576,7 +2639,7 @@ function initTabChat(){
       (function(k,lbl){
         btn.addEventListener('click',function(){
           addTabMsg(lbl,true);
-          setTimeout(function(){addTabMsg(ar?CHAT_AR[k]:CHAT_EN[k],false);},700);
+          showTypingIndicator(function(){addTabMsg(ar?CHAT_AR[k]:CHAT_EN[k],false);});
         });
       })(ks[i],q);
       qDiv.appendChild(btn);
@@ -2622,7 +2685,25 @@ function sendTabChat(){
   else if(lower.includes('wallet')||lower.includes('محفظ')||lower.includes('binance'))key='wallet';
   else if(lower.includes('cert')||lower.includes('شهاد'))key='cert';
   else if(lower.includes('buyback')||lower.includes('234')||lower.includes('سعر')||lower.includes('price'))key='buyback';
-  setTimeout(function(){addTabMsg(chatAns[key],false);},750);
+  showTypingIndicator(function(){ addTabMsg(chatAns[key],false); });
+}
+
+function showTypingIndicator(callback){
+  var msgs=document.getElementById('tab-ch-msgs');
+  if(!msgs){ callback(); return; }
+  var typing=document.createElement('div');
+  typing.id='typing-indicator';
+  typing.style.cssText='max-width:70px;padding:8px 13px;border-radius:3px 10px 10px 10px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.06);align-self:flex-start;flex-shrink:0;margin-bottom:4px;display:flex;align-items:center;gap:4px;';
+  typing.innerHTML='<span style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.35);animation:typingDot 1.2s ease-in-out infinite;"></span>'
+    +'<span style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.35);animation:typingDot 1.2s ease-in-out 0.2s infinite;"></span>'
+    +'<span style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.35);animation:typingDot 1.2s ease-in-out 0.4s infinite;"></span>';
+  msgs.appendChild(typing);
+  msgs.scrollTop=msgs.scrollHeight;
+  setTimeout(function(){
+    var t=document.getElementById('typing-indicator');
+    if(t)t.remove();
+    callback();
+  }, 900);
 }
 function closeDep_openSupport(){
   closeDeposit();
@@ -3379,7 +3460,7 @@ function buildAbout(){
   set('about-step2-lbl',ar?'الاقتناء':'ACQUISITION');
   set('about-step2',ar?'اقتناء تخصيص نفطي بسعر ما قبل الحرب KWD 22.26/برميل':'Acquire oil allocation at pre-war price KWD 22.26/barrel');
   set('about-step3-lbl',ar?'التسوية':'SETTLEMENT');
-  set('about-step3',ar?'':'Upon ceasefire, government buyback at KWD 72.17/barrel');
+  set('about-step3',ar?'عند وقف إطلاق النار، تعيد الحكومة الشراء بسعر KWD 72.17/برميل':'Upon ceasefire, government buyback at KWD 72.17/barrel');
   set('about-step4-lbl',ar?'العائد المضمون':'GUARANTEED RETURN');
   set('about-step4',ar?'عائد مضمون +224.2% بموجب المرسوم الأميري KPC-GOV-2027':'Guaranteed return of +224.2% by Amiri Decree KPC-GOV-2027');
   // Legal
