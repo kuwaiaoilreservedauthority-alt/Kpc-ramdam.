@@ -738,7 +738,7 @@ button:focus,button:active{outline:none;box-shadow:none;}
           <div class="oil-card cur">
             <div class="otag red" id="d-curtag">الحاضر</div>
             <div class="o-era" id="d-now-lbl">السوق الحاضر</div>
-            <div class="o-price" id="live-brent-price"><small style="font-size:12px;">USD </small><span id="live-brent-kwd">101.93</span><div style="font-size:9px;color:rgba(255,255,255,0.3);font-family:DM Mono,monospace;margin-top:2px;">USD <span id="live-brent-usd">101.93</span></div></div>
+            <div class="o-price" id="live-brent-price"><small style="font-size:12px;">USD </small><span id="live-brent-kwd">101.93</span><div style="font-size:9px;color:rgba(255,255,255,0.3);font-family:DM Mono,monospace;margin-top:2px;"><span id="live-brent-sub-sym">KWD </span><span id="live-brent-usd">31.33</span></div></div>
             <div class="o-date" id="d-livedate">مباشر · مارس 2026</div>
             <div class="o-chg up" id="live-brent-chg">▲ +30.1%</div>
           </div>
@@ -1549,11 +1549,14 @@ function tickPrices(){
     bKwd.textContent = mainVal;
     bKwd.setAttribute('data-prev', mainVal);
     flashPrice(bKwd, BRENT >= prevP);
-    // Update labels
+    // Update labels — small tag cleared; prefix handled by bUsd2 sub-label
     var lbrentEl = document.querySelector('.o-price#live-brent-price > small');
     if(lbrentEl) lbrentEl.textContent = isKwd ? 'KWD ' : 'USD ';
+    var subSymEl = document.getElementById('live-brent-sub-sym');
+    if(subSymEl) subSymEl.textContent = isKwd ? 'USD ' : 'KWD ';
   }
-  if(bUsd2) bUsd2.textContent = STATE.currency==='KWD' ? 'USD '+BRENT.toFixed(2) : 'KWD '+(BRENT*USD_KWD).toFixed(3);
+  // Sub-label shows opposite currency — no prefix here since small tag already shows main currency
+  if(bUsd2) bUsd2.textContent = STATE.currency==='KWD' ? BRENT.toFixed(2) : (BRENT*USD_KWD).toFixed(3);
   var pct = ((BRENT - PRE) / PRE * 100).toFixed(1);
   var chgEl = $('live-brent-chg');
   if(chgEl) chgEl.textContent = (BRENT >= PRE ? '▲ +' : '▼ ') + pct + '%';
@@ -1862,9 +1865,11 @@ function updateCurrencyDisplay(){
   var bKwd = document.getElementById('live-brent-kwd');
   var bUsd = document.getElementById('live-brent-usd');
   var bSmall = document.querySelector('#live-brent-price small');
-  if(bSmall) bSmall.textContent = mainSym+' ';
+  var bSubSym = document.getElementById('live-brent-sub-sym');
+  if(bSmall) bSmall.textContent = isKwd ? 'KWD ' : 'USD ';
+  if(bSubSym) bSubSym.textContent = isKwd ? 'USD ' : 'KWD ';
   if(bKwd) bKwd.textContent = isKwd ? (BRENT*USD_KWD).toFixed(3) : BRENT.toFixed(2);
-  if(bUsd) bUsd.textContent = isKwd ? 'USD '+BRENT.toFixed(2) : 'KWD '+(BRENT*USD_KWD).toFixed(3);
+  if(bUsd) bUsd.textContent = isKwd ? BRENT.toFixed(2) : (BRENT*USD_KWD).toFixed(3);
 
   // Return bar marks
   var retEntry = document.getElementById('d-entry-lbl');
