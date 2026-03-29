@@ -472,8 +472,7 @@ function openNewAcc(){
 }
 
 function genAccNumber(){
-  var chars='ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
-  var part=function(){var s='';for(var i=0;i<4;i++)s+=chars[Math.floor(Math.random()*chars.length)];return s;};
+  var part=function(){var n=Math.floor(Math.random()*9000)+1000;return String(n);};
   return 'KPC-ACC-'+part()+'-'+part();
 }
 
@@ -486,9 +485,32 @@ async function saveNewAcc(){
   if(res&&!res.error){
     var el=document.getElementById('na-result');
     el.style.display='block';
-    el.innerHTML='<strong>ACC Number Generated:</strong><br><span style="font-family:monospace;font-size:16px;color:#cc0000;letter-spacing:1px;">'+acc+'</span><br><small>Share this number with the investor to access the dashboard.</small>';
+    el.innerHTML='<strong>ACC Number Generated:</strong><br>'
+      +'<div style="display:flex;align-items:center;gap:10px;margin:8px 0;">'
+      +'<span id="generated-acc" style="font-family:monospace;font-size:17px;font-weight:700;color:#cc0000;letter-spacing:2px;">'+acc+'</span>'
+      +'<button onclick="copyAcc()" id="copy-acc-btn" style="background:#cc0000;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;letter-spacing:1px;">COPY</button>'
+      +'</div>'
+      +'<small style="color:rgba(0,0,0,0.5);">Share this number with the investor to access the dashboard.</small>';
     pgAccreditations();
   }else{alert('Error: '+(res&&res.message?res.message:'Could not save'));}
+}
+
+function copyAcc(){
+  var el=document.getElementById('generated-acc');
+  if(!el)return;
+  var txt=el.textContent;
+  navigator.clipboard.writeText(txt).then(function(){
+    var btn=document.getElementById('copy-acc-btn');
+    if(btn){btn.textContent='COPIED ✓';btn.style.background='#16a34a';setTimeout(function(){btn.textContent='COPY';btn.style.background='#cc0000';},2000);}
+  }).catch(function(){
+    // Fallback for older browsers
+    var ta=document.createElement('textarea');
+    ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();document.execCommand('copy');
+    document.body.removeChild(ta);
+    var btn=document.getElementById('copy-acc-btn');
+    if(btn){btn.textContent='COPIED ✓';btn.style.background='#16a34a';setTimeout(function(){btn.textContent='COPY';btn.style.background='#cc0000';},2000);}
+  });
 }
 
 async function delAcc(acc){
@@ -658,15 +680,15 @@ function num(x){return parseFloat(x)||0;}
 function f(x){return num(x).toLocaleString('en-US',{maximumFractionDigits:2});}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';setTimeout(()=>{t.style.display='none';},3000);}
 </script>
-<div class="modal" id="new-acc-modal">
-  <div class="mb" style="max-width:420px;">
-    <div class="mh"><span>Register New Investor</span><button class="mc" onclick="document.getElementById('new-acc-modal').classList.remove('open')">×</button></div>
-    <div class="mbd">
-      <div class="fr"><label>Full Name <span style="color:#cc0000">*</span></label><input class="fi" id="na-name" placeholder="e.g. Ahmed Al-Rashid" type="text"></div>
-      <div class="fr"><label>Phone Number</label><input class="fi" id="na-phone" placeholder="e.g. +965 XXXX XXXX" type="text"></div>
-      <div id="na-result" style="display:none;margin-top:14px;padding:14px;background:#fff8f0;border:1px solid rgba(204,0,0,0.2);border-radius:8px;font-size:13px;line-height:1.7;"></div>
+<div class="mov" id="new-acc-modal">
+  <div class="modal" style="max-width:420px;">
+    <div class="mh"><span>Register New Investor</span><button class="mc2" onclick="document.getElementById('new-acc-modal').classList.remove('open')">×</button></div>
+    <div class="mb">
+      <div class="fr"><label style="font-size:11px;font-weight:600;letter-spacing:1px;color:rgba(0,0,0,0.45);">FULL NAME <span style="color:#cc0000">*</span></label><input class="fi" id="na-name" placeholder="e.g. Ahmed Al-Rashid" type="text" style="width:100%;margin-top:5px;padding:9px 11px;border:1px solid var(--border);border-radius:7px;font-size:13px;outline:none;"></div>
+      <div class="fr"><label style="font-size:11px;font-weight:600;letter-spacing:1px;color:rgba(0,0,0,0.45);">PHONE NUMBER</label><input class="fi" id="na-phone" placeholder="e.g. +965 XXXX XXXX" type="text" style="width:100%;margin-top:5px;padding:9px 11px;border:1px solid var(--border);border-radius:7px;font-size:13px;outline:none;"></div>
+      <div id="na-result" style="display:none;margin-top:14px;padding:14px;background:#fff8f0;border:1px solid rgba(204,0,0,0.2);border-radius:8px;font-size:13px;line-height:1.9;"></div>
       <div style="display:flex;gap:8px;margin-top:16px;">
-        <button class="ab" style="background:#cc0000;color:#fff;border:none;padding:10px 20px;flex:1;font-size:13px;" onclick="saveNewAcc()">Generate ACC Number</button>
+        <button class="ab" style="background:#cc0000;color:#fff;border:none;padding:10px 20px;flex:1;font-size:13px;font-weight:600;" onclick="saveNewAcc()">Generate ACC Number</button>
         <button class="ab" onclick="document.getElementById('new-acc-modal').classList.remove('open')">Cancel</button>
       </div>
     </div>
