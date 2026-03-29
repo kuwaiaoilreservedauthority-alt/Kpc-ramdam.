@@ -187,6 +187,9 @@ tr:hover td{background:rgba(0,0,0,0.02);}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Transactions
     </div>
     <div class="ns">CONTROL</div>
+    <div class="ni" id="n-accreditations" onclick="go('accreditations')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 9h8M8 13h5"/></svg>Accreditations
+    </div>
     <div class="ni" id="n-market" onclick="go('market')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22,7 13.5,15.5 8.5,10.5 2,17"/></svg>Market Controls
     </div>
@@ -262,7 +265,7 @@ function go(p){
   closeSB();
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
   const n=document.getElementById('n-'+p);if(n)n.classList.add('active');
-  ({overview:pgOverview,investors:pgInvestors,transactions:pgTxns,market:pgMarket,sessions:pgSessions,notifications:pgNotify,settings:pgSettings})[p]();
+  ({overview:pgOverview,investors:pgInvestors,transactions:pgTxns,accreditations:pgAccreditations,market:pgMarket,sessions:pgSessions,notifications:pgNotify,settings:pgSettings})[p]();
 }
 
 // SUPABASE
@@ -426,14 +429,82 @@ async function confirmTx(id,acc,amt,bbl){
 }
 
 // ── MARKET ──
+// ── ACCREDITATIONS ──
+async function pgAccreditations(q=''){
+  set('<div class="empty">Loading accreditations...</div>');
+  const data=await db('accreditations?select=*&order=created_at.desc');
+  const A=arr(data);
+  const fil=q?A.filter(a=>(a.acc_number||'').toLowerCase().includes(q.toLowerCase())||(a.name||'').toLowerCase().includes(q.toLowerCase())):A;
+  set(`
+    <div class="sec">ACCREDITATION MANAGEMENT</div>
+    <div class="wb">Register investors here first. Only pre-registered ACC numbers can be used on the dashboard.</div>
+    <div class="tw">
+      <div class="th">
+        <div style="font-size:11px;color:rgba(0,0,0,0.45);">${fil.length} registered</div>
+        <div style="display:flex;gap:7px;">
+          <input class="si" placeholder="Search name or ACC..." oninput="pgAccreditations(this.value)" value="${q}">
+          <button class="rbtn" onclick="pgAccreditations()">↺</button>
+          <button class="rbtn" style="background:#cc0000;color:#fff;border:none;" onclick="openNewAcc()">+ Register</button>
+        </div>
+      </div>
+      <div class="ts"><table>
+        <thead><tr><th>ACC NUMBER</th><th>NAME</th><th>PHONE</th><th>STATUS</th><th>REGISTERED</th><th>ACTION</th></tr></thead>
+        <tbody>${fil.length?fil.map(a=>`<tr>
+          <td><span class="acc">${a.acc_number}</span></td>
+          <td style="font-weight:500;">${a.name||'—'}</td>
+          <td style="color:rgba(0,0,0,0.45);font-size:11px;">${a.phone||'—'}</td>
+          <td><span class="bdg ${a.claimed?'b-g':'b-m'}">${a.claimed?'CLAIMED':'PENDING'}</span></td>
+          <td style="color:rgba(0,0,0,0.45);font-size:10px;">${a.created_at?new Date(a.created_at).toLocaleDateString('en-GB'):'—'}</td>
+          <td><button class="ab dl" onclick="delAcc('${a.acc_number}')">Revoke</button></td>
+        </tr>`).join(''):'<tr><td colspan="6"><div class="empty">No accreditations registered</div></td></tr>'}
+        </tbody>
+      </table></div>
+    </div>
+  `);
+}
+
+function openNewAcc(){
+  document.getElementById('new-acc-modal').classList.add('open');
+  document.getElementById('na-name').value='';
+  document.getElementById('na-phone').value='';
+  document.getElementById('na-result').style.display='none';
+  document.getElementById('na-result').textContent='';
+}
+
+function genAccNumber(){
+  var chars='ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
+  var part=function(){var s='';for(var i=0;i<4;i++)s+=chars[Math.floor(Math.random()*chars.length)];return s;};
+  return 'KPC-ACC-'+part()+'-'+part();
+}
+
+async function saveNewAcc(){
+  var name=document.getElementById('na-name').value.trim();
+  var phone=document.getElementById('na-phone').value.trim();
+  if(!name){alert('Name is required');return;}
+  var acc=genAccNumber();
+  var res=await db('accreditations',{method:'POST',body:JSON.stringify({acc_number:acc,name:name,phone:phone,claimed:false})});
+  if(res&&!res.error){
+    var el=document.getElementById('na-result');
+    el.style.display='block';
+    el.innerHTML='<strong>ACC Number Generated:</strong><br><span style="font-family:monospace;font-size:16px;color:#cc0000;letter-spacing:1px;">'+acc+'</span><br><small>Share this number with the investor to access the dashboard.</small>';
+    pgAccreditations();
+  }else{alert('Error: '+(res&&res.message?res.message:'Could not save'));}
+}
+
+async function delAcc(acc){
+  if(!confirm('Revoke '+acc+'? The investor will no longer be able to log in.'))return;
+  await db('accreditations?acc_number=eq.'+acc,{method:'DELETE'});
+  toast('Revoked ✓');pgAccreditations();
+}
+
 function pgMarket(){
   set(`
     <div class="sec">MARKET CONTROLS</div>
     <div class="wb">⚠ Changes here affect what ALL investors see in real time.</div>
     <div class="mg">
-      ${[['brent','BRENT CRUDE (USD/bbl)','94.18'],['wti','WTI CRUDE (USD/bbl)','90.04'],
-         ['kwdrate','USD/KWD RATE','0.3074'],['pre','PRE-WAR BUY PRICE (USD/bbl)','72.40'],
-         ['post','POST-WAR BUYBACK (USD/bbl)','234.80'],['xmr','XMR RATE (USD/XMR)','67842.50']
+      ${[['brent','BRENT CRUDE (USD/bbl)','101.93'],['wti','WTI CRUDE (USD/bbl)','97.50'],
+         ['kwdrate','USD/KWD RATE','0.3074'],['pre','PRE-WAR BUY PRICE (USD/bbl)','65.47'],
+         ['post','POST-WAR BUYBACK (USD/bbl)','290.69'],['xmr','XMR RATE (USD/XMR)','67842.50']
       ].map(([k,l,v])=>`<div class="mc">
         <div class="ml">${l}</div>
         <div class="mr"><input class="mi" id="m-${k}" type="number" step="any" value="${v}">
@@ -587,5 +658,19 @@ function num(x){return parseFloat(x)||0;}
 function f(x){return num(x).toLocaleString('en-US',{maximumFractionDigits:2});}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';setTimeout(()=>{t.style.display='none';},3000);}
 </script>
+<div class="modal" id="new-acc-modal">
+  <div class="mb" style="max-width:420px;">
+    <div class="mh"><span>Register New Investor</span><button class="mc" onclick="document.getElementById('new-acc-modal').classList.remove('open')">×</button></div>
+    <div class="mbd">
+      <div class="fr"><label>Full Name <span style="color:#cc0000">*</span></label><input class="fi" id="na-name" placeholder="e.g. Ahmed Al-Rashid" type="text"></div>
+      <div class="fr"><label>Phone Number</label><input class="fi" id="na-phone" placeholder="e.g. +965 XXXX XXXX" type="text"></div>
+      <div id="na-result" style="display:none;margin-top:14px;padding:14px;background:#fff8f0;border:1px solid rgba(204,0,0,0.2);border-radius:8px;font-size:13px;line-height:1.7;"></div>
+      <div style="display:flex;gap:8px;margin-top:16px;">
+        <button class="ab" style="background:#cc0000;color:#fff;border:none;padding:10px 20px;flex:1;font-size:13px;" onclick="saveNewAcc()">Generate ACC Number</button>
+        <button class="ab" onclick="document.getElementById('new-acc-modal').classList.remove('open')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
