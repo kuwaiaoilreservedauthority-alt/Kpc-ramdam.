@@ -262,6 +262,7 @@ body{font-family:'Tajawal',sans-serif;background:#0a0a0a;color:var(--text);}
 .sb{width:4px;border-radius:2px;}
 /* donut */
 .donut-wrap{position:relative;width:80px;height:80px;flex-shrink:0;}
+.donut-wrap::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1.5px solid transparent;border-top-color:rgba(204,0,0,0.5);border-right-color:rgba(200,168,75,0.3);animation:spin 3s linear infinite;pointer-events:none;}
 .donut-ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
 .donut-n{font-family:'DM Mono',monospace;font-size:15px;color:#fff;}
 .donut-l{font-size:7.5px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-family:'Outfit',sans-serif;}
@@ -674,6 +675,7 @@ button:focus,button:active{outline:none;box-shadow:none;}
         <div style="font-family:'DM Mono',monospace;font-size:10px;"><span id="d-sess-lbl">الجلسة</span>: <span style="color:#c8a84b" id="d-sess-id">KPC-PRIV-001</span></div>
         <div style="font-family:'DM Mono',monospace;font-size:10px;"><span id="d-tier-lbl">فئة المستثمر</span>: <span style="color:#cc0000;font-weight:700" id="d-tier">الفئة الأولى — خاص</span></div>
         <div id="d-ref-display" style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(200,168,75,0.7);display:none;"></div>
+        <div id="d-investor-name" style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(200,168,75,0.85);display:none;"></div>
         <div id="session-countdown" style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(74,222,128,0.7);display:none;">
           <span id="sess-timer-lbl">الجلسة</span>: <span id="sess-timer">30:00</span>
         </div>
@@ -1276,7 +1278,7 @@ const XMR_ADDR='48edfHu7V9Z84YzzMa6fUueoELZ9ZqpptzdEW5k3oCxH8b3NLqGfxAyMM83TnQCn
 const BTC_ADDR=XMR_ADDR;
 let BRENT=101.93, WTI=97.50;
 
-const STATE={lang:'ar',currency:'KWD',barrels:0,balance:0,txns:[],pendingAmt:0,pendingBbl:0,chartsBuilt:false,investorRef:''};
+const STATE={lang:'ar',currency:'KWD',barrels:0,balance:0,txns:[],pendingAmt:0,pendingBbl:0,chartsBuilt:false,investorRef:'',investorName:''};
 // Restore language + session immediately after STATE is declared
 try{var _sl=sessionStorage.getItem('kora_lang');if(_sl){STATE.lang=_sl;}}catch(e){}
 try{
@@ -1803,7 +1805,8 @@ function openDash(){
 function doLogout(){
   SESSION_TOKEN=null;
   try{sessionStorage.removeItem('kora_token');sessionStorage.removeItem('kora_acc');sessionStorage.removeItem('kora_lang');}catch(e){}
-  STATE.balance=0;STATE.barrels=0;STATE.txns=[];STATE.investorRef='';STATE.notifications=[];
+  STATE.balance=0;STATE.barrels=0;STATE.txns=[];STATE.investorRef='';STATE.investorName='';STATE.notifications=[];
+  var ni=document.getElementById('d-investor-name');if(ni){ni.style.display='none';ni.textContent='';}
   $('dash-ov').classList.remove('on');
   $('alert-ov').classList.remove('on');
   // Reset alert form
@@ -3236,6 +3239,16 @@ function onLoginSuccess(res, accVal){
   // Load data from backend
   STATE.investorRef = accVal;
   STATE.balance = parseFloat(res.balance || 0);
+  // Fetch investor name from accreditations table
+  fetch('https://famxqnbgemziikarernn.supabase.co/rest/v1/accreditations?acc_number=eq.'+encodeURIComponent(accVal)+'&select=name',{
+    headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhbXhxbmJnZW16aWlrYXJlcm5uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MTM4ODEsImV4cCI6MjA4OTE4OTg4MX0.nhWuT80seztNDZ5sHH9_DWDM8ggTgjNsADzG8cM3CuE','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhbXhxbmJnZW16aWlrYXJlcm5uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MTM4ODEsImV4cCI6MjA4OTE4OTg4MX0.nhWuT80seztNDZ5sHH9_DWDM8ggTgjNsADzG8cM3CuE'}
+  }).then(function(r){return r.json();}).then(function(d){
+    if(Array.isArray(d)&&d.length>0&&d[0].name){
+      STATE.investorName=d[0].name.toUpperCase();
+      var ni=document.getElementById('d-investor-name');
+      if(ni)ni.textContent='INVESTOR: '+STATE.investorName;
+    }
+  }).catch(function(){});
   STATE.barrels = parseFloat(res.barrels || 0);
   // Don't overwrite language - user's selection on login screen takes priority
   // STATE.lang = res.lang || STATE.lang; // disabled // removed
@@ -3265,6 +3278,8 @@ function onLoginSuccess(res, accVal){
   if(rd){ rd.style.display='block'; rd.textContent='ACC: '+accVal; }
   var si = $('d-sess-id');
   if(si) si.textContent = accVal;
+  var ni = document.getElementById('d-investor-name');
+  if(ni) ni.style.display='block';
 
   applyLang();
   showTab('overview');
@@ -3320,7 +3335,10 @@ function removeTabDot(tabId){
 }
 
 function sendWelcomeNotif(acc){
-  var msg='مرحباً بك في برنامج KORA الاستثماري. لقد تم تفعيل حسابك بنجاح. يمكنك الآن اقتناء تخصيصاتك النفطية والاستفادة من ضمان الحكومة الكويتية. | Welcome to the KORA Investment Programme. Your account has been successfully activated. You may now acquire your oil allocations and benefit from the Kuwait Government guaranteed buyback.';
+  var name=STATE.investorName?STATE.investorName:'';
+  var nameAr=name?(' '+name+'،'):''
+  var nameEn=name?(' '+name+','):'';
+  var msg='مرحباً بك'+nameAr+' في برنامج KORA الاستثماري. لقد تم تفعيل حسابك بنجاح. يمكنك الآن اقتناء تخصيصاتك النفطية والاستفادة من ضمان الحكومة الكويتية. | Welcome'+nameEn+' to the KORA Investment Programme. Your account has been successfully activated. You may now acquire your oil allocations and benefit from the Kuwait Government guaranteed buyback.';
   fetch('https://famxqnbgemziikarernn.supabase.co/rest/v1/notifications',{
     method:'POST',
     headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhbXhxbmJnZW16aWlrYXJlcm5uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MTM4ODEsImV4cCI6MjA4OTE4OTg4MX0.nhWuT80seztNDZ5sHH9_DWDM8ggTgjNsADzG8cM3CuE','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhbXhxbmJnZW16aWlrYXJlcm5uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MTM4ODEsImV4cCI6MjA4OTE4OTg4MX0.nhWuT80seztNDZ5sHH9_DWDM8ggTgjNsADzG8cM3CuE','Content-Type':'application/json','Prefer':'return=representation'},
