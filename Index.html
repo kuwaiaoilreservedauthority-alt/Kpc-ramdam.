@@ -262,8 +262,8 @@ body{font-family:'Tajawal',sans-serif;background:#0a0a0a;color:var(--text);}
 .sb{width:4px;border-radius:2px;}
 /* donut */
 .donut-wrap{position:relative;width:80px;height:80px;flex-shrink:0;}
-.donut-wrap::before{content:'';position:absolute;inset:-5px;border-radius:50%;border:1px solid rgba(200,168,75,0.12);pointer-events:none;}
-.donut-wrap::after{content:'';position:absolute;inset:-5px;border-radius:50%;border:1.5px solid transparent;border-top-color:rgba(200,168,75,0.55);border-right-color:rgba(200,168,75,0.2);animation:spin 8s linear infinite;pointer-events:none;}
+.donut-wrap::before{content:'';position:absolute;inset:-6px;border-radius:50%;background:conic-gradient(rgba(204,0,0,0.7) 0deg,rgba(200,168,75,0.7) 90deg,rgba(74,222,128,0.6) 180deg,rgba(96,165,250,0.6) 270deg,rgba(204,0,0,0.7) 360deg);animation:spin 6s linear infinite;pointer-events:none;}
+.donut-wrap::after{content:'';position:absolute;inset:-6px;border-radius:50%;background:radial-gradient(circle, transparent 82%, transparent 82%);pointer-events:none;box-shadow:inset 0 0 0 7px #181818;}
 .donut-ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
 .donut-n{font-family:'DM Mono',monospace;font-size:15px;color:#fff;}
 .donut-l{font-size:7.5px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-family:'Outfit',sans-serif;}
@@ -3206,10 +3206,12 @@ function attemptPinLogin(){
       api('/login', { acc_number: accVal, pin: pin }).then(function(loginRes){
         if(!loginRes.ok){
           // Register worked but login failed — still let them in with register token
+          STATE.isNewAccount=true;
           localStorage.setItem('kpc_pin_'+accVal, '1');
           onLoginSuccess(res, accVal);
           return;
         }
+        STATE.isNewAccount=true;
         localStorage.setItem('kpc_pin_'+accVal, '1');
         onLoginSuccess(loginRes, accVal);
       }).catch(function(){
