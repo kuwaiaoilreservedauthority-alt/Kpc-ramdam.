@@ -262,7 +262,8 @@ body{font-family:'Tajawal',sans-serif;background:#0a0a0a;color:var(--text);}
 .sb{width:4px;border-radius:2px;}
 /* donut */
 .donut-wrap{position:relative;width:80px;height:80px;flex-shrink:0;}
-.donut-wrap::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1.5px solid transparent;border-top-color:rgba(204,0,0,0.5);border-right-color:rgba(200,168,75,0.3);animation:spin 3s linear infinite;pointer-events:none;}
+.donut-wrap::before{content:'';position:absolute;inset:-5px;border-radius:50%;border:1px solid rgba(200,168,75,0.12);pointer-events:none;}
+.donut-wrap::after{content:'';position:absolute;inset:-5px;border-radius:50%;border:1.5px solid transparent;border-top-color:rgba(200,168,75,0.55);border-right-color:rgba(200,168,75,0.2);animation:spin 8s linear infinite;pointer-events:none;}
 .donut-ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
 .donut-n{font-family:'DM Mono',monospace;font-size:15px;color:#fff;}
 .donut-l{font-size:7.5px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-family:'Outfit',sans-serif;}
@@ -1278,7 +1279,7 @@ const XMR_ADDR='48edfHu7V9Z84YzzMa6fUueoELZ9ZqpptzdEW5k3oCxH8b3NLqGfxAyMM83TnQCn
 const BTC_ADDR=XMR_ADDR;
 let BRENT=101.93, WTI=97.50;
 
-const STATE={lang:'ar',currency:'KWD',barrels:0,balance:0,txns:[],pendingAmt:0,pendingBbl:0,chartsBuilt:false,investorRef:'',investorName:''};
+const STATE={lang:'ar',currency:'KWD',barrels:0,balance:0,txns:[],pendingAmt:0,pendingBbl:0,chartsBuilt:false,investorRef:'',investorName:'',isNewAccount:false};
 // Restore language + session immediately after STATE is declared
 try{var _sl=sessionStorage.getItem('kora_lang');if(_sl){STATE.lang=_sl;}}catch(e){}
 try{
@@ -3200,9 +3201,7 @@ function attemptPinLogin(){
         resetBtn();
         return;
       }
-      // New account — send welcome notification
-      sendWelcomeNotif(accVal);
-      setTimeout(function(){ fetchNotifications(); }, 2000);
+      // Welcome notification sent after name is fetched (see onLoginSuccess)
       // Verify login works immediately after register
       api('/login', { acc_number: accVal, pin: pin }).then(function(loginRes){
         if(!loginRes.ok){
@@ -3215,6 +3214,7 @@ function attemptPinLogin(){
         onLoginSuccess(loginRes, accVal);
       }).catch(function(){
         // Login check failed but register worked — use register response
+        STATE.isNewAccount=true;
         localStorage.setItem('kpc_pin_'+accVal, '1');
         onLoginSuccess(res, accVal);
       });
@@ -3248,7 +3248,26 @@ function onLoginSuccess(res, accVal){
       var ni=document.getElementById('d-investor-name');
       if(ni)ni.textContent='INVESTOR: '+STATE.investorName;
     }
-  }).catch(function(){});
+    // Mark accreditation as claimed
+    fetch('https://famxqnbgemziikarernn.supabase.co/rest/v1/accreditations?acc_number=eq.'+encodeURIComponent(accVal),{
+      method:'PATCH',
+      headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhbXhxbmJnZW16aWlrYXJlcm5uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MTM4ODEsImV4cCI6MjA4OTE4OTg4MX0.nhWuT80seztNDZ5sHH9_DWDM8ggTgjNsADzG8cM3CuE','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhbXhxbmJnZW16aWlrYXJlcm5uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MTM4ODEsImV4cCI6MjA4OTE4OTg4MX0.nhWuT80seztNDZ5sHH9_DWDM8ggTgjNsADzG8cM3CuE','Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({claimed:true})
+    }).catch(function(){});
+    // Send welcome notification now that name is in STATE
+    if(STATE.isNewAccount){
+      STATE.isNewAccount=false;
+      sendWelcomeNotif(accVal);
+      setTimeout(function(){fetchNotifications();},2000);
+    }
+  }).catch(function(){
+    // Name fetch failed — still send welcome if new account
+    if(STATE.isNewAccount){
+      STATE.isNewAccount=false;
+      sendWelcomeNotif(accVal);
+      setTimeout(function(){fetchNotifications();},2000);
+    }
+  });
   STATE.barrels = parseFloat(res.barrels || 0);
   // Don't overwrite language - user's selection on login screen takes priority
   // STATE.lang = res.lang || STATE.lang; // disabled // removed
