@@ -203,6 +203,9 @@ tr:hover td{background:rgba(0,0,0,0.02);}
     <div class="ni" id="n-settings" onclick="go('settings')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings
     </div>
+    <div class="ni" id="n-content" onclick="go('content')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Content
+    </div>
   </div>
 
   <div class="ac"><div class="ai" id="ai"></div></div>
@@ -265,7 +268,7 @@ function go(p){
   closeSB();
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
   const n=document.getElementById('n-'+p);if(n)n.classList.add('active');
-  ({overview:pgOverview,investors:pgInvestors,transactions:pgTxns,accreditations:pgAccreditations,market:pgMarket,sessions:pgSessions,notifications:pgNotify,settings:pgSettings})[p]();
+  ({overview:pgOverview,investors:pgInvestors,transactions:pgTxns,accreditations:pgAccreditations,market:pgMarket,sessions:pgSessions,notifications:pgNotify,settings:pgSettings,content:pgContent})[p]();
 }
 
 // SUPABASE
@@ -679,6 +682,110 @@ function arr(x){return Array.isArray(x)?x:[];}
 function num(x){return parseFloat(x)||0;}
 function f(x){return num(x).toLocaleString('en-US',{maximumFractionDigits:2});}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';setTimeout(()=>{t.style.display='none';},3000);}
+
+async function pgContent(){
+  setPage('content');
+  // Load current values from config table
+  const rows=await db('config?select=key,value');
+  const map={};
+  if(Array.isArray(rows)) rows.forEach(r=>{map[r.key]=r.value;});
+  const leaderSrc=map['about_leader_photo']||'';
+  const hormuzSrc=map['about_hormuz_image']||'';
+  const tankerSrc=map['about_tanker_image']||'';
+  const tutorialUrl=map['tutorial_video_url']||'';
+
+  set(`<div style="padding:24px;max-width:700px;">
+    <h2 style="font-size:18px;font-weight:700;margin-bottom:4px;">Content Manager</h2>
+    <p style="font-size:12px;color:rgba(0,0,0,0.4);margin-bottom:24px;">Upload images and video shown in the investor dashboard About &amp; Support tabs.</p>
+
+    <!-- LEADER PHOTO -->
+    <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:rgba(0,0,0,0.45);margin-bottom:12px;">LEADER PHOTO (About Tab)</div>
+      ${leaderSrc?`<img src="${leaderSrc}" style="width:100%;max-height:220px;object-fit:cover;border-radius:8px;margin-bottom:12px;" />`:'<div style="background:#f5f5f5;border:1px dashed #ccc;border-radius:8px;padding:30px;text-align:center;margin-bottom:12px;font-size:12px;color:#999;">No image uploaded yet</div>'}
+      <input type="file" accept="image/*" id="upload-leader" style="display:none;" onchange="handleContentUpload('about_leader_photo','upload-leader','leader-status')">
+      <div style="display:flex;gap:8px;">
+        <button class="ab" style="background:#cc0000;color:#fff;border:none;padding:9px 18px;font-size:12px;font-weight:600;" onclick="document.getElementById('upload-leader').click()">Upload Photo</button>
+        ${leaderSrc?`<button class="ab" style="background:#fff3f3;color:#cc0000;border:1px solid rgba(204,0,0,0.2);padding:9px 18px;font-size:12px;" onclick="clearContentKey('about_leader_photo')">Remove</button>`:''}
+      </div>
+      <div id="leader-status" style="font-size:11px;margin-top:8px;color:#cc0000;"></div>
+    </div>
+
+    <!-- HORMUZ MAP -->
+    <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:rgba(0,0,0,0.45);margin-bottom:12px;">STRAIT OF HORMUZ MAP (About Tab)</div>
+      ${hormuzSrc?`<img src="${hormuzSrc}" style="width:100%;max-height:180px;object-fit:cover;border-radius:8px;margin-bottom:12px;" />`:'<div style="background:#f5f5f5;border:1px dashed #ccc;border-radius:8px;padding:30px;text-align:center;margin-bottom:12px;font-size:12px;color:#999;">No image uploaded yet</div>'}
+      <input type="file" accept="image/*" id="upload-hormuz" style="display:none;" onchange="handleContentUpload('about_hormuz_image','upload-hormuz','hormuz-status')">
+      <div style="display:flex;gap:8px;">
+        <button class="ab" style="background:#cc0000;color:#fff;border:none;padding:9px 18px;font-size:12px;font-weight:600;" onclick="document.getElementById('upload-hormuz').click()">Upload Map</button>
+        ${hormuzSrc?`<button class="ab" style="background:#fff3f3;color:#cc0000;border:1px solid rgba(204,0,0,0.2);padding:9px 18px;font-size:12px;" onclick="clearContentKey('about_hormuz_image')">Remove</button>`:''}
+      </div>
+      <div id="hormuz-status" style="font-size:11px;margin-top:8px;color:#cc0000;"></div>
+    </div>
+
+    <!-- OIL TANKER -->
+    <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:rgba(0,0,0,0.45);margin-bottom:12px;">OIL TANKER IMAGE (About Tab)</div>
+      ${tankerSrc?`<img src="${tankerSrc}" style="width:100%;max-height:180px;object-fit:cover;border-radius:8px;margin-bottom:12px;" />`:'<div style="background:#f5f5f5;border:1px dashed #ccc;border-radius:8px;padding:30px;text-align:center;margin-bottom:12px;font-size:12px;color:#999;">No image uploaded yet</div>'}
+      <input type="file" accept="image/*" id="upload-tanker" style="display:none;" onchange="handleContentUpload('about_tanker_image','upload-tanker','tanker-status')">
+      <div style="display:flex;gap:8px;">
+        <button class="ab" style="background:#cc0000;color:#fff;border:none;padding:9px 18px;font-size:12px;font-weight:600;" onclick="document.getElementById('upload-tanker').click()">Upload Image</button>
+        ${tankerSrc?`<button class="ab" style="background:#fff3f3;color:#cc0000;border:1px solid rgba(204,0,0,0.2);padding:9px 18px;font-size:12px;" onclick="clearContentKey('about_tanker_image')">Remove</button>`:''}
+      </div>
+      <div id="tanker-status" style="font-size:11px;margin-top:8px;color:#cc0000;"></div>
+    </div>
+
+    <!-- TUTORIAL VIDEO URL -->
+    <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:rgba(0,0,0,0.45);margin-bottom:8px;">TUTORIAL VIDEO URL (Support Tab + New Account Popup)</div>
+      <p style="font-size:11px;color:rgba(0,0,0,0.4);margin-bottom:10px;">Paste a direct video URL (MP4) or YouTube embed URL. This plays in the Support tab and pops up on new investor first login.</p>
+      <input id="tutorial-url-input" type="text" placeholder="https://... or https://www.youtube.com/embed/..." value="${tutorialUrl}" style="width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:7px;font-size:13px;outline:none;box-sizing:border-box;margin-bottom:10px;">
+      <button class="ab" style="background:#cc0000;color:#fff;border:none;padding:9px 18px;font-size:12px;font-weight:600;" onclick="saveTutorialUrl()">Save URL</button>
+      <div id="tutorial-status" style="font-size:11px;margin-top:8px;color:#cc0000;"></div>
+    </div>
+  </div>`);
+}
+
+async function handleContentUpload(configKey, inputId, statusId){
+  const file=document.getElementById(inputId).files[0];
+  if(!file){return;}
+  const statusEl=document.getElementById(statusId);
+  if(statusEl) statusEl.textContent='Uploading...';
+  // Convert to base64
+  const reader=new FileReader();
+  reader.onload=async function(e){
+    const b64=e.target.result; // data:image/...;base64,...
+    // Check size — Supabase text column limit
+    if(b64.length>1500000){
+      if(statusEl) statusEl.textContent='Image too large. Please use an image under 1MB.';
+      return;
+    }
+    await saveConfigKey(configKey, b64);
+    if(statusEl) statusEl.textContent='Saved ✓';
+    setTimeout(()=>pgContent(),800);
+  };
+  reader.readAsDataURL(file);
+}
+
+async function saveConfigKey(k, v){
+  const ex=await db(`config?key=eq.${k}&select=key`);
+  if(Array.isArray(ex)&&ex.length){
+    await db(`config?key=eq.${k}`,{method:'PATCH',body:JSON.stringify({value:v})});
+  } else {
+    await db('config',{method:'POST',body:JSON.stringify({key:k,value:v})});
+  }
+}
+
+async function clearContentKey(k){
+  await db(`config?key=eq.${k}`,{method:'DELETE'});
+  pgContent();
+}
+
+async function saveTutorialUrl(){
+  const v=document.getElementById('tutorial-url-input').value.trim();
+  await saveConfigKey('tutorial_video_url', v);
+  const s=document.getElementById('tutorial-status');
+  if(s) s.textContent='Saved ✓';
+}
 </script>
 <div class="mov" id="new-acc-modal">
   <div class="modal" style="max-width:420px;">
