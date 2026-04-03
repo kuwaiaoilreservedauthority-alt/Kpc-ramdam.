@@ -684,7 +684,6 @@ function f(x){return num(x).toLocaleString('en-US',{maximumFractionDigits:2});}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';setTimeout(()=>{t.style.display='none';},3000);}
 
 async function pgContent(){
-  setPage('content');
   // Load current values from config table
   const rows=await db('config?select=key,value');
   const map={};
