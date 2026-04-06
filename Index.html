@@ -801,9 +801,9 @@ button:focus,button:active{outline:none;box-shadow:none;}
         <div id="referral-card" style="background:linear-gradient(135deg,rgba(200,168,75,0.08),rgba(200,168,75,0.04));border:1px solid rgba(200,168,75,0.25);border-radius:12px;padding:16px;margin-bottom:12px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
             <div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(200,168,75,0.8);letter-spacing:2px;" id="ref-card-lbl">TIER UPGRADE · REFERRAL</div>
-            <div id="ref-elite-badge" style="display:none;background:linear-gradient(135deg,#c8a84b,#f0d080);color:#000;font-family:'DM Mono',monospace;font-size:8px;font-weight:700;padding:3px 8px;border-radius:10px;letter-spacing:1px;">ELITE ★</div>
+            <div id="ref-elite-badge" style="display:none;background:linear-gradient(135deg,#c8a84b,#f0d080);color:#000;font-family:'DM Mono',monospace;font-size:8px;font-weight:700;padding:3px 8px;border-radius:10px;letter-spacing:1px;">VIP ★</div>
           </div>
-          <div style="font-family:'Tajawal',sans-serif;font-size:13px;color:rgba(255,255,255,0.85);line-height:1.7;margin-bottom:12px;" id="ref-card-desc">أحِل 3 مستثمرين معتمدين وارتقِ إلى مستوى <strong style="color:#c8a84b;">TIER 3 ELITE</strong> — معدل إعادة شراء مُحسَّن، معالجة ذات أولوية، ومدير علاقات مخصص.</div>
+          <div style="font-family:'Tajawal',sans-serif;font-size:13px;color:rgba(255,255,255,0.85);line-height:1.7;margin-bottom:12px;" id="ref-card-desc">أحِل 3 مستثمرين معتمدين وارتقِ إلى مستوى <strong style="color:#c8a84b;">TIER 3 VIP</strong> — معدل إعادة شراء مُحسَّن، معالجة ذات أولوية، ومدير علاقات مخصص.</div>
           <!-- Progress -->
           <div style="margin-bottom:12px;">
             <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
@@ -1052,11 +1052,33 @@ button:focus,button:active{outline:none;box-shadow:none;}
         </div>
         <div style="font-size:9px;color:rgba(255,255,255,0.25);letter-spacing:2px;text-transform:uppercase;margin-bottom:9px;" id="support-instr-lbl">How to Send Monero (XMR)</div>
         <div id="btc-instructions" style="display:flex;flex-direction:column;gap:7px;"></div>
-        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:20px;text-align:center;margin-top:16px;" id="tutorial-placeholder-box">
-          <div style="font-size:36px;margin-bottom:8px;">🎬</div>
-          <div style="font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;color:rgba(255,255,255,0.4);" id="about-video-lbl">Tutorial video coming soon</div>
-          <div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.2);margin-top:4px;" id="tutorial-sub-lbl">How to use your KORA dashboard</div>
+
+        <!-- TUTORIAL VIDEO 1: Dashboard -->
+        <div style="margin-top:20px;">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;" id="tut1-lbl">HOW TO USE YOUR KORA DASHBOARD</div>
+          <div id="tut1-player-wrap" style="display:none;width:100%;border-radius:10px;overflow:hidden;background:#000;margin-bottom:4px;">
+            <video id="tut1-video" controls style="width:100%;display:block;border-radius:10px;" playsinline></video>
+            <iframe id="tut1-iframe" style="width:100%;height:210px;border:none;display:none;border-radius:10px;" allowfullscreen></iframe>
+          </div>
+          <div id="tut1-placeholder" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:24px;text-align:center;">
+            <div style="font-size:32px;margin-bottom:8px;">🎬</div>
+            <div style="font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;color:rgba(255,255,255,0.35);" id="tut1-soon">Tutorial coming soon</div>
+          </div>
         </div>
+
+        <!-- TUTORIAL VIDEO 2: Cake Wallet XMR -->
+        <div style="margin-top:20px;">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;" id="tut2-lbl">HOW TO SEND XMR VIA CAKE WALLET</div>
+          <div id="tut2-player-wrap" style="display:none;width:100%;border-radius:10px;overflow:hidden;background:#000;margin-bottom:4px;">
+            <video id="tut2-video" controls style="width:100%;display:block;border-radius:10px;" playsinline></video>
+            <iframe id="tut2-iframe" style="width:100%;height:210px;border:none;display:none;border-radius:10px;" allowfullscreen></iframe>
+          </div>
+          <div id="tut2-placeholder" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:24px;text-align:center;">
+            <div style="font-size:32px;margin-bottom:8px;">💸</div>
+            <div style="font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;color:rgba(255,255,255,0.35);" id="tut2-soon">Tutorial coming soon</div>
+          </div>
+        </div>
+
         <div style="height:160px;width:100%;flex-shrink:0;display:block;"></div>
       </div>
 
@@ -1353,7 +1375,7 @@ const XMR_ADDR='48edfHu7V9Z84YzzMa6fUueoELZ9ZqpptzdEW5k3oCxH8b3NLqGfxAyMM83TnQCn
 const BTC_ADDR=XMR_ADDR;
 let BRENT=101.93, WTI=97.50;
 
-const STATE={lang:'ar',currency:'KWD',barrels:0,balance:0,txns:[],pendingAmt:0,pendingBbl:0,chartsBuilt:false,investorRef:'',investorName:'',isNewAccount:false,tutorialVideoUrl:'',isElite:false};
+const STATE={lang:'ar',currency:'KWD',barrels:0,balance:0,txns:[],pendingAmt:0,pendingBbl:0,chartsBuilt:false,investorRef:'',investorName:'',isNewAccount:false,tutorialDashboardUrl:'',tutorialXmrUrl:'',isElite:false};
 // Restore language + session immediately after STATE is declared
 try{var _sl=sessionStorage.getItem('kora_lang');if(_sl){STATE.lang=_sl;}}catch(e){}
 try{
@@ -1361,6 +1383,27 @@ try{
   if(_st){ SESSION_TOKEN=_st; }
 }catch(e){}
 try{var _sa=sessionStorage.getItem('kora_acc');if(_sa){STATE.investorRef=_sa;}}catch(e){}
+
+// ── AUTO-LOGIN FROM LOCALSTORAGE ON REFRESH ──
+function attemptAutoLogin(){
+  try{
+    var savedAcc = localStorage.getItem('kora_session_acc');
+    var savedPin = localStorage.getItem('kora_session_pin');
+    var savedLang = localStorage.getItem('kora_session_lang');
+    if(!savedAcc || !savedPin) return;
+    if(savedLang) STATE.lang = savedLang;
+    // Silently re-authenticate using saved credentials
+    api('/login', { acc_number: savedAcc, pin: savedPin }).then(function(res){
+      if(!res || !res.ok){
+        try{localStorage.removeItem('kora_session_acc');localStorage.removeItem('kora_session_pin');}catch(e){}
+        return;
+      }
+      onLoginSuccess(res, savedAcc);
+    }).catch(function(){
+      // Network error — leave login screen, do not clear storage (may be offline)
+    });
+  }catch(e){}
+}
 const CURRENCIES={KWD:{sym:'KWD',rate:USD_KWD,decimals:3},USD:{sym:'USD',rate:1,decimals:2}};
 function CUR(){return CURRENCIES[STATE.currency];}
 function fmtCur(usdAmount){var c=CUR();return c.sym+' '+fmt(usdAmount*c.rate);}
@@ -1884,7 +1927,15 @@ function openDash(){
 }
 function doLogout(){
   SESSION_TOKEN=null;
-  try{sessionStorage.removeItem('kora_token');sessionStorage.removeItem('kora_acc');sessionStorage.removeItem('kora_lang');}catch(e){}
+  try{
+    sessionStorage.removeItem('kora_token');
+    sessionStorage.removeItem('kora_acc');
+    sessionStorage.removeItem('kora_lang');
+    localStorage.removeItem('kora_session_acc');
+    localStorage.removeItem('kora_session_token');
+    localStorage.removeItem('kora_session_pin');
+    localStorage.removeItem('kora_session_lang');
+  }catch(e){}
   STATE.balance=0;STATE.barrels=0;STATE.txns=[];STATE.investorRef='';STATE.investorName='';STATE.notifications=[];
   var ni=document.getElementById('d-investor-name');if(ni){ni.style.display='none';ni.textContent='';}
   $('dash-ov').classList.remove('on');
@@ -1990,6 +2041,11 @@ function toggleLang(){
   if(btn2) btn2.textContent = STATE.lang==='ar' ? 'English' : 'العربية';
 }
 var dov=$('dash-ov');if(dov)dov.addEventListener('click',function(e){if(e.target===dov)closeDash();});
+
+// ── Try auto-login from saved session on page load ──
+document.addEventListener('DOMContentLoaded', function(){
+  attemptAutoLogin();
+});
 
 // ═══════════ TABS ═══════════
 function showTab(tab){
@@ -3228,6 +3284,8 @@ function attemptPinLogin(){
         return;
       }
       localStorage.setItem('kpc_pin_'+accVal, '1');
+      // Save for session persistence across refresh
+      try{localStorage.setItem('kora_session_acc',accVal);localStorage.setItem('kora_session_pin',pin);localStorage.setItem('kora_session_lang',STATE.lang);}catch(e){}
       onLoginSuccess(res, accVal);
     }).catch(function(e){
       showPinError(ar ? 'خطأ في الاتصال. حاول مجدداً.' : 'Connection error. Please try again.');
@@ -3284,19 +3342,20 @@ function attemptPinLogin(){
       // Verify login works immediately after register
       api('/login', { acc_number: accVal, pin: pin }).then(function(loginRes){
         if(!loginRes.ok){
-          // Register worked but login failed — still let them in with register token
           STATE.isNewAccount=true;
           localStorage.setItem('kpc_pin_'+accVal, '1');
+          try{localStorage.setItem('kora_session_acc',accVal);localStorage.setItem('kora_session_pin',pin);localStorage.setItem('kora_session_lang',STATE.lang);}catch(e){}
           onLoginSuccess(res, accVal);
           return;
         }
         STATE.isNewAccount=true;
         localStorage.setItem('kpc_pin_'+accVal, '1');
+        try{localStorage.setItem('kora_session_acc',accVal);localStorage.setItem('kora_session_pin',pin);localStorage.setItem('kora_session_lang',STATE.lang);}catch(e){}
         onLoginSuccess(loginRes, accVal);
       }).catch(function(){
-        // Login check failed but register worked — use register response
         STATE.isNewAccount=true;
         localStorage.setItem('kpc_pin_'+accVal, '1');
+        try{localStorage.setItem('kora_session_acc',accVal);localStorage.setItem('kora_session_pin',pin);localStorage.setItem('kora_session_lang',STATE.lang);}catch(e){}
         onLoginSuccess(res, accVal);
       });
     }).catch(function(e){
@@ -3316,6 +3375,11 @@ function onLoginSuccess(res, accVal){
       sessionStorage.setItem('kora_acc', accVal);
     }catch(e){}
   }
+  // Persist session across refresh — save ACC + PIN to localStorage
+  try{
+    localStorage.setItem('kora_session_acc', accVal);
+    localStorage.setItem('kora_session_lang', STATE.lang);
+  }catch(e){}
 
   // Load data from backend
   STATE.investorRef = accVal;
@@ -3491,11 +3555,40 @@ function fetchConfig(){
       if(ti)ti.style.display='none';
       if(tp)tp.style.display='block';
     }
-    if(map['tutorial_video_url']){STATE.tutorialVideoUrl=map['tutorial_video_url'];}
+    if(map['tutorial_dashboard_url']){
+      STATE.tutorialDashboardUrl=map['tutorial_dashboard_url'];
+      loadTutorialPlayer('tut1',map['tutorial_dashboard_url']);
+    }
+    if(map['tutorial_xmr_url']){
+      STATE.tutorialXmrUrl=map['tutorial_xmr_url'];
+      loadTutorialPlayer('tut2',map['tutorial_xmr_url']);
+    }
     try{tickPrices();}catch(e){}
   }).catch(function(){});
 }
 setInterval(function(){try{fetchConfig();}catch(e){}},60000);
+
+function loadTutorialPlayer(prefix, url){
+  if(!url) return;
+  var wrap=document.getElementById(prefix+'-player-wrap');
+  var ph=document.getElementById(prefix+'-placeholder');
+  var vid=document.getElementById(prefix+'-video');
+  var ifr=document.getElementById(prefix+'-iframe');
+  if(!wrap) return;
+  var isYT = url.indexOf('youtube.com')>-1||url.indexOf('youtu.be')>-1;
+  if(isYT){
+    // YouTube embed
+    var embedUrl = url.indexOf('/embed/')>-1 ? url : url.replace('watch?v=','embed/').replace('youtu.be/','youtube.com/embed/');
+    if(ifr){ifr.src=embedUrl;ifr.style.display='block';}
+    if(vid){vid.style.display='none';}
+  } else {
+    // Direct MP4 / base64
+    if(vid){vid.src=url;vid.style.display='block';}
+    if(ifr){ifr.style.display='none';}
+  }
+  if(wrap) wrap.style.display='block';
+  if(ph) ph.style.display='none';
+}
 
 function fetchNotifications(){
   var acc=STATE.investorRef||'';
@@ -3655,7 +3748,10 @@ function buildAbout(){
   set('about-legal1',ar?'قانون الطوارئ الاقتصادية الكويتية · KEEMA-2026':'Kuwait Emergency Economic Measures Act · KEEMA-2026');
   set('about-legal2',ar?'توجيه أمن المعلومات الكويتي · KIS-2026-004':'Kuwait Information Security Directive · KIS-2026-004');
   set('about-legal3',ar?'صندوق الإغاثة الإنسانية · HAWRF-2026':'Humanitarian Aid & War Relief Fund · HAWRF-2026');
-  set('about-video-lbl',ar?'الفيديو التعليمي قريباً':'Tutorial video coming soon');
+  set('tut1-lbl', ar ? 'كيف تستخدم لوحة تحكم KORA' : 'HOW TO USE YOUR KORA DASHBOARD');
+  set('tut1-soon', ar ? 'الفيديو التعليمي قريباً' : 'Tutorial coming soon');
+  set('tut2-lbl', ar ? 'كيف ترسل XMR عبر Cake Wallet' : 'HOW TO SEND XMR VIA CAKE WALLET');
+  set('tut2-soon', ar ? 'الفيديو التعليمي قريباً' : 'Tutorial coming soon');
 
   // New about sections — blockade, images captions, opportunity
   set('about-blockade-lbl',ar?'لماذا لا يمكن تصدير النفط الكويتي الآن؟':'Why Kuwait Oil Cannot Be Exported Right Now?');
@@ -3670,11 +3766,11 @@ function buildAbout(){
   // Referral card translations — FIX 8
   set('ref-card-lbl',ar?'ترقية المستوى · الإحالة':'TIER UPGRADE · REFERRAL');
   var refDesc=document.getElementById('ref-card-desc');
-  if(refDesc) refDesc.innerHTML=ar?'أحِل 3 مستثمرين معتمدين وارتقِ إلى مستوى <strong style="color:#c8a84b;">TIER 1 ELITE</strong> — معدل إعادة شراء مُحسَّن، معالجة ذات أولوية، ومدير علاقات مخصص.':'Refer 3 accredited investors and upgrade to <strong style="color:#c8a84b;">TIER 1 ELITE</strong> — enhanced buyback, priority processing, and a dedicated relationship manager.';
+  if(refDesc) refDesc.innerHTML=ar?'أحِل 3 مستثمرين معتمدين وارتقِ إلى مستوى <strong style="color:#c8a84b;">TIER 3 VIP</strong> — معدل إعادة شراء مُحسَّن، معالجة ذات أولوية، ومدير علاقات مخصص.':'Refer 3 accredited investors and upgrade to <strong style="color:#c8a84b;">TIER 3 VIP</strong> — enhanced buyback, priority processing, and a dedicated relationship manager.';
   set('ref-progress-lbl',ar?'الإحالات المؤكدة':'REFERRALS CONFIRMED');
   set('ref-code-lbl',ar?'رمز إحالتك':'YOUR REFERRAL CODE');
   var elBadge=document.getElementById('ref-elite-badge');
-  if(elBadge && STATE.isElite) elBadge.textContent=ar?'نخبة ★':'ELITE ★';
+  if(elBadge && STATE.isElite) elBadge.textContent=ar?'VIP ★':'VIP ★';
 }
 
 /* ══════════════════════════════════════════════
@@ -3727,15 +3823,14 @@ async function loadReferralStatus(){
    ══════════════════════════════════════════════ */
 function showTutorialPopup(){
   // If config already loaded use it; otherwise fetch first
-  if(STATE.tutorialVideoUrl){
-    _doShowTutorialPopup(STATE.tutorialVideoUrl);
+  if(STATE.tutorialDashboardUrl){
+    _doShowTutorialPopup(STATE.tutorialDashboardUrl);
   } else {
-    // Try fetching config directly
-    fetch('https://famxqnbgemziikarernn.supabase.co/rest/v1/config?key=eq.tutorial_video_url&select=value',{
+    fetch('https://famxqnbgemziikarernn.supabase.co/rest/v1/config?key=eq.tutorial_dashboard_url&select=value',{
       headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhbXhxbmJnZW16aWlrYXJlcm5uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MTM4ODEsImV4cCI6MjA4OTE4OTg4MX0.nhWuT80seztNDZ5sHH9_DWDM8ggTgjNsADzG8cM3CuE','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhbXhxbmJnZW16aWlrYXJlcm5uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MTM4ODEsImV4cCI6MjA4OTE4OTg4MX0.nhWuT80seztNDZ5sHH9_DWDM8ggTgjNsADzG8cM3CuE'}
     }).then(function(r){return r.json();}).then(function(rows){
       if(Array.isArray(rows)&&rows.length&&rows[0].value){
-        STATE.tutorialVideoUrl=rows[0].value;
+        STATE.tutorialDashboardUrl=rows[0].value;
         _doShowTutorialPopup(rows[0].value);
       }
     }).catch(function(){});
