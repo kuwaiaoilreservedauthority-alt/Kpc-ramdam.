@@ -197,7 +197,7 @@ body{font-family:'Tajawal',sans-serif;background:#0a0a0a;color:var(--text);}
 /* balance card */
 .bal-card{background:linear-gradient(130deg,#120000,#1c0404,#120000);border:1px solid rgba(204,0,0,0.28);border-radius:12px;padding:20px 22px;margin-bottom:14px;position:relative;overflow:hidden;}
 .bal-card::before{content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;background:radial-gradient(circle,rgba(204,0,0,0.09),transparent 70%);border-radius:50%;}
-.bal-card::after{content:'PRIVATE · RESTRICTED';position:absolute;bottom:12px;left:16px;font-family:'DM Mono',monospace;font-size:7.5px;letter-spacing:3px;color:rgba(204,0,0,0.15);}
+.bal-card::after{content:'ELITE · RESTRICTED';position:absolute;bottom:12px;left:16px;font-family:'DM Mono',monospace;font-size:7.5px;letter-spacing:3px;color:rgba(204,0,0,0.15);}
 .bal-lbl{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;font-family:'Outfit',sans-serif;}
 .bal-num{font-family:'IBM Plex Sans',sans-serif;font-size:38px;font-weight:600;color:#fff;letter-spacing:-0.5px;line-height:1;}
 .bal-num sup{font-size:18px;color:var(--muted);vertical-align:super;}
@@ -674,7 +674,7 @@ button:focus,button:active{outline:none;box-shadow:none;}
         <div class="d-live"><div class="d-dot"></div><span id="d-live-txt">بث مباشر</span></div>
         <div id="d-clock" style="font-family:'DM Mono',monospace;font-size:10px;"></div>
         <div style="font-family:'DM Mono',monospace;font-size:10px;"><span id="d-sess-lbl">الجلسة</span>: <span style="color:#c8a84b" id="d-sess-id">KPC-PRIV-001</span></div>
-        <div style="font-family:'DM Mono',monospace;font-size:10px;"><span id="d-tier-lbl">فئة المستثمر</span>: <span style="color:#cc0000;font-weight:700" id="d-tier">الفئة الأولى — خاص</span></div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;"><span id="d-tier-lbl">فئة المستثمر</span>: <span style="color:#cc0000;font-weight:700" id="d-tier">الفئة الأولى — نخبة</span></div>
         <div id="d-ref-display" style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(200,168,75,0.7);display:none;"></div>
         <div id="d-investor-name" style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(200,168,75,0.85);display:none;"></div>
         <div id="session-countdown" style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(74,222,128,0.7);display:none;">
@@ -814,13 +814,11 @@ button:focus,button:active{outline:none;box-shadow:none;}
               <div id="ref-progress-bar" style="height:100%;background:linear-gradient(90deg,#c8a84b,#f0d080);border-radius:4px;transition:width 0.4s;width:0%;"></div>
             </div>
           </div>
-          <!-- Referral code -->
-          <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(200,168,75,0.2);border-radius:8px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;">
-            <div>
-              <div style="font-family:'DM Mono',monospace;font-size:8px;color:rgba(255,255,255,0.3);letter-spacing:1px;margin-bottom:3px;" id="ref-code-lbl">YOUR REFERRAL CODE</div>
-              <div style="font-family:'DM Mono',monospace;font-size:13px;color:#c8a84b;font-weight:700;letter-spacing:2px;" id="ref-code-val">—</div>
-            </div>
-            <button onclick="copyReferralCode()" style="background:rgba(200,168,75,0.15);border:1px solid rgba(200,168,75,0.3);color:#c8a84b;padding:6px 12px;border-radius:6px;font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;" id="ref-copy-btn">COPY</button>
+          <!-- Referral link -->
+          <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(200,168,75,0.2);border-radius:8px;padding:10px 12px;">
+            <div style="font-family:'DM Mono',monospace;font-size:8px;color:rgba(255,255,255,0.3);letter-spacing:1px;margin-bottom:6px;" id="ref-code-lbl">YOUR REFERRAL LINK</div>
+            <div style="font-family:'DM Mono',monospace;font-size:10px;color:#c8a84b;font-weight:600;word-break:break-all;margin-bottom:8px;" id="ref-code-val">—</div>
+            <button onclick="copyReferralCode()" style="width:100%;background:rgba(200,168,75,0.15);border:1px solid rgba(200,168,75,0.3);color:#c8a84b;padding:8px 12px;border-radius:6px;font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;letter-spacing:1px;" id="ref-copy-btn">COPY LINK</button>
           </div>
         </div>
 
@@ -1375,7 +1373,7 @@ const XMR_ADDR='48edfHu7V9Z84YzzMa6fUueoELZ9ZqpptzdEW5k3oCxH8b3NLqGfxAyMM83TnQCn
 const BTC_ADDR=XMR_ADDR;
 let BRENT=101.93, WTI=97.50;
 
-const STATE={lang:'ar',currency:'KWD',barrels:0,balance:0,txns:[],pendingAmt:0,pendingBbl:0,chartsBuilt:false,investorRef:'',investorName:'',isNewAccount:false,tutorialDashboardUrl:'',tutorialXmrUrl:'',isElite:false};
+const STATE={lang:'ar',currency:'KWD',barrels:0,balance:0,txns:[],pendingAmt:0,pendingBbl:0,chartsBuilt:false,investorRef:'',investorName:'',isNewAccount:false,tutorialDashboardUrl:'',tutorialXmrUrl:'',isElite:false,referredBy:''};
 // Restore language + session immediately after STATE is declared
 try{var _sl=sessionStorage.getItem('kora_lang');if(_sl){STATE.lang=_sl;}}catch(e){}
 try{
@@ -1392,15 +1390,25 @@ function attemptAutoLogin(){
     var savedLang = localStorage.getItem('kora_session_lang');
     if(!savedAcc || !savedPin) return;
     if(savedLang) STATE.lang = savedLang;
+    // IMMEDIATELY hide bubble and show a silent loading state — no flicker
+    var bubble = document.getElementById('kpc-bubble');
+    var loader = document.getElementById('kpc-loader');
+    if(bubble) bubble.style.display='none';
+    if(loader){ loader.classList.add('on'); }
     // Silently re-authenticate using saved credentials
     api('/login', { acc_number: savedAcc, pin: savedPin }).then(function(res){
+      if(loader) loader.classList.remove('on');
       if(!res || !res.ok){
+        // Invalid session — show bubble again
+        if(bubble) bubble.style.display='block';
         try{localStorage.removeItem('kora_session_acc');localStorage.removeItem('kora_session_pin');}catch(e){}
         return;
       }
       onLoginSuccess(res, savedAcc);
     }).catch(function(){
-      // Network error — leave login screen, do not clear storage (may be offline)
+      // Network error — show bubble again, keep storage
+      if(loader) loader.classList.remove('on');
+      if(bubble) bubble.style.display='block';
     });
   }catch(e){}
 }
@@ -1432,7 +1440,7 @@ const T={
     langBtn:'English',
     dTitle:'هيئة الاحتياطيات النفطية الكويتية',
     dSub:'KORA · سري للغاية · وصول مفوّض فقط',
-    liveTxt:'بث مباشر', sessLbl:'الجلسة', tierLbl:'فئة المستثمر', tier:'الفئة الأولى — خاص',
+    liveTxt:'بث مباشر', sessLbl:'الجلسة', tierLbl:'فئة المستثمر', tier:'الفئة الأولى — نخبة',
     portLbl:'إجمالي قيمة المحفظة (KWD)', cashLbl:'الرصيد النقدي', bblLbl:'البراميل المملوكة',
     pnlLbl:'الأرباح غير المحققة', postLbl:'قيمة ما بعد الحرب',
     oilSec:'خام برنت — تحليل أثر الحرب', prewarLbl:'ما قبل الحرب (سعر شرائك)',
@@ -1488,7 +1496,7 @@ const T={
     langBtn:'العربية',
     dTitle:'Kuwait Oil Reserved Authorities',
     dSub:'KORA · Confidential · Authorized Access Only',
-    liveTxt:'LIVE FEED', sessLbl:'Session', tierLbl:'Investor Tier', tier:'TIER 1 — PRIVATE',
+    liveTxt:'LIVE FEED', sessLbl:'Session', tierLbl:'Investor Tier', tier:'TIER 1 — ELITE',
     portLbl:'Total Portfolio Value (KWD)', cashLbl:'Cash Balance', bblLbl:'Barrels Owned',
     pnlLbl:'Unrealized P&L', postLbl:'Post-War Value',
     oilSec:'Brent Crude — War Impact Analysis', prewarLbl:'Pre-War (Your Buy Price)',
@@ -2041,6 +2049,27 @@ function toggleLang(){
   if(btn2) btn2.textContent = STATE.lang==='ar' ? 'English' : 'العربية';
 }
 var dov=$('dash-ov');if(dov)dov.addEventListener('click',function(e){if(e.target===dov)closeDash();});
+
+// ── Hide bubble instantly if session saved — prevents flicker on refresh ──
+(function(){
+  try{
+    var sa=localStorage.getItem('kora_session_acc');
+    var sp=localStorage.getItem('kora_session_pin');
+    if(sa&&sp){
+      var b=document.getElementById('kpc-bubble');
+      if(b) b.style.display='none';
+    }
+  }catch(e){}
+})();
+
+// ── Capture referral code from URL ?ref= param ──
+(function(){
+  try{
+    var params = new URLSearchParams(window.location.search);
+    var ref = params.get('ref');
+    if(ref) STATE.referredBy = ref;
+  }catch(e){}
+})();
 
 // ── Try auto-login from saved session on page load ──
 document.addEventListener('DOMContentLoaded', function(){
@@ -3318,7 +3347,7 @@ function attemptPinLogin(){
     }
 
     // Register with Worker
-    api('/register', { acc_number: accVal, pin: pin }).then(function(res){
+    api('/register', { acc_number: accVal, pin: pin, referred_by: STATE.referredBy||'' }).then(function(res){
       if(!res.ok){
         // Account exists — switch to login mode and clear boxes
         if(res.error && res.error.includes('already')){
@@ -3768,7 +3797,7 @@ function buildAbout(){
   var refDesc=document.getElementById('ref-card-desc');
   if(refDesc) refDesc.innerHTML=ar?'أحِل 3 مستثمرين معتمدين وارتقِ إلى مستوى <strong style="color:#c8a84b;">TIER 3 VIP</strong> — معدل إعادة شراء مُحسَّن، معالجة ذات أولوية، ومدير علاقات مخصص.':'Refer 3 accredited investors and upgrade to <strong style="color:#c8a84b;">TIER 3 VIP</strong> — enhanced buyback, priority processing, and a dedicated relationship manager.';
   set('ref-progress-lbl',ar?'الإحالات المؤكدة':'REFERRALS CONFIRMED');
-  set('ref-code-lbl',ar?'رمز إحالتك':'YOUR REFERRAL CODE');
+  set('ref-code-lbl',ar?'رابط الإحالة الخاص بك':'YOUR REFERRAL LINK');
   var elBadge=document.getElementById('ref-elite-badge');
   if(elBadge && STATE.isElite) elBadge.textContent=ar?'VIP ★':'VIP ★';
 }
@@ -3777,19 +3806,21 @@ function buildAbout(){
    FIX 8 — REFERRAL SYSTEM
    ══════════════════════════════════════════════ */
 function generateReferralCode(accNumber){
-  // Generate deterministic code from ACC number
   if(!accNumber) return '—';
   var parts = accNumber.replace('KPC-ACC-','').split('-');
-  return 'KORA-REF-' + (parts[0]||'0000') + (parts[1]||'0000');
+  var code = 'KORA-REF-' + (parts[0]||'0000') + (parts[1]||'0000');
+  // Return full shareable link
+  var base = window.location.origin + window.location.pathname;
+  return base + '?ref=' + code;
 }
 
 function copyReferralCode(){
-  var code = document.getElementById('ref-code-val');
-  if(!code || code.textContent==='—') return;
+  var linkEl = document.getElementById('ref-code-val');
+  if(!linkEl || linkEl.textContent==='—') return;
   try{
-    navigator.clipboard.writeText(code.textContent);
+    navigator.clipboard.writeText(linkEl.textContent);
     var btn = document.getElementById('ref-copy-btn');
-    if(btn){ btn.textContent='COPIED ✓'; btn.style.color='#4ade80'; setTimeout(function(){btn.textContent='COPY';btn.style.color='#c8a84b';},2000); }
+    if(btn){ btn.textContent='COPIED ✓'; btn.style.color='#4ade80'; setTimeout(function(){btn.textContent='COPY LINK';btn.style.color='#c8a84b';},2000); }
   }catch(e){}
 }
 
