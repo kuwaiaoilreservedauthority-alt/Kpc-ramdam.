@@ -692,6 +692,7 @@ async function pgContent(){
   const hormuzSrc=map['about_hormuz_image']||'';
   const tankerSrc=map['about_tanker_image']||'';
   const dashTutUrl=map['tutorial_dashboard_url']||'';
+  const appBaseUrl=map['app_base_url']||'';
   const xmrTutUrl=map['tutorial_xmr_url']||'';
 
   set(`<div style="padding:24px;max-width:700px;">
@@ -732,6 +733,15 @@ async function pgContent(){
         ${tankerSrc?`<button class="ab" style="background:#fff3f3;color:#cc0000;border:1px solid rgba(204,0,0,0.2);padding:9px 18px;font-size:12px;" onclick="clearContentKey('about_tanker_image')">Remove</button>`:''}
       </div>
       <div id="tanker-status" style="font-size:11px;margin-top:8px;color:#cc0000;"></div>
+    </div>
+
+    <!-- APP BASE URL -->
+    <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:rgba(0,0,0,0.45);margin-bottom:6px;">🔗 APP BASE URL (for referral links)</div>
+      <p style="font-size:11px;color:rgba(0,0,0,0.4);margin-bottom:10px;">Set the base URL of your app. Used to generate referral links. Change this if your domain changes.</p>
+      <input id="app-base-url-input" type="text" placeholder="https://kora11kpc.netlify.app" value="${appBaseUrl}" style="width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:7px;font-size:13px;outline:none;box-sizing:border-box;margin-bottom:8px;">
+      <button class="ab" style="background:#cc0000;color:#fff;border:none;padding:9px 18px;font-size:12px;font-weight:600;" onclick="saveAppBaseUrl()">Save URL</button>
+      <div id="app-base-url-status" style="font-size:11px;margin-top:8px;color:#cc0000;"></div>
     </div>
 
     <!-- TUTORIAL VIDEO 1: DASHBOARD -->
@@ -799,6 +809,15 @@ async function saveConfigKey(k, v){
 async function clearContentKey(k){
   await db(`config?key=eq.${k}`,{method:'DELETE'});
   pgContent();
+}
+
+async function saveAppBaseUrl(){
+  const v=document.getElementById('app-base-url-input').value.trim();
+  if(!v){return;}
+  await saveConfigKey('app_base_url', v);
+  const s=document.getElementById('app-base-url-status');
+  if(s){s.textContent='Saved ✓';s.style.color='green';setTimeout(()=>{s.textContent='';},2000);}
+  setTimeout(()=>pgContent(),800);
 }
 
 async function saveTutorialKey(configKey, inputId, statusId){
