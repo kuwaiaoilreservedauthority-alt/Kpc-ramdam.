@@ -1112,11 +1112,15 @@ button:focus,button:active{outline:none;box-shadow:none;}
     <div class="dep-body">
       <!-- CALC -->
       <div id="dep-calc">
-        <div class="inp-lbl" id="dep-amt-lbl">مبلغ الاستثمار (دولار أمريكي)</div>
-        <input class="inp" id="dep-amt" type="number" placeholder="50000" min="1000" oninput="calcAlloc()">
+        <!-- Currency toggle inside calculator -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div class="inp-lbl" id="dep-amt-lbl" style="margin-bottom:0;">مبلغ الاستثمار</div>
+          <button id="dep-cur-btn" onclick="toggleDepCurrency()" style="background:rgba(200,168,75,0.15);border:1.5px solid rgba(200,168,75,0.4);color:#c8a84b;padding:4px 12px;border-radius:14px;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;cursor:pointer;">KWD</button>
+        </div>
+        <input class="inp" id="dep-amt" type="number" placeholder="10000" min="1" oninput="calcAlloc()">
         <div id="calc-res-box" style="display:none">
           <div class="calc-res">
-            <div class="cr"><span class="cr-l" id="dc1">سعر الشراء قبل الحرب</span><span class="cr-v">$65.47 / bbl</span></div>
+            <div class="cr"><span class="cr-l" id="dc1">سعر الشراء قبل الحرب</span><span class="cr-v" id="dep-pre-price">$65.47 / bbl</span></div>
             <div class="cr"><span class="cr-l" id="dc2">البراميل المخصصة</span><span class="cr-v" id="dc-bbl">—</span></div>
             <div class="cr"><span class="cr-l" id="dc3">القيمة السوقية الحالية</span><span class="cr-v g" id="dc-cur">—</span></div>
             <div class="cr hl"><span class="cr-l" id="dc4">إعادة شراء حكومية بعد الحرب</span><span class="cr-v gd" id="dc-post">—</span></div>
@@ -1366,14 +1370,37 @@ async function api(route, body) {
 }
 
 // ═══════════ CONSTANTS ═══════════
-const PRE=65.47, POST=290.69, BTC_RATE=67842.50, USD_KWD=0.3074;
+const PRE=65.47, POST=290.69, USD_KWD=0.3078;
+let XMR_KWD_RATE = 220.00; // Default fallback — updated by live fetch
+let LIVE_USD_KWD = USD_KWD; // Updated by live fetch
+
+// Fetch live XMR/KWD rate from CoinGecko (free, no key needed)
+function fetchLiveRates(){
+  // XMR price in USD from CoinGecko
+  fetch('https://api.coingecko.com/api/v3/simple/price?ids=monero&vs_currencies=usd,kwd')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d&&d.monero){
+        if(d.monero.kwd) XMR_KWD_RATE = d.monero.kwd;
+        else if(d.monero.usd) XMR_KWD_RATE = d.monero.usd * USD_KWD;
+      }
+    }).catch(function(){});
+  // USD/KWD live rate from exchangerate-api (free tier)
+  fetch('https://api.exchangerate-api.com/v4/latest/USD')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d&&d.rates&&d.rates.KWD) LIVE_USD_KWD = d.rates.KWD;
+    }).catch(function(){});
+}
+fetchLiveRates();
+setInterval(fetchLiveRates, 300000); // Refresh every 5 minutes
 const PRE_KWD=(PRE*USD_KWD).toFixed(2), POST_KWD=(POST*USD_KWD).toFixed(2);
 const BRENT_KWD=()=>(BRENT*USD_KWD).toFixed(2);
 const XMR_ADDR='48edfHu7V9Z84YzzMa6fUueoELZ9ZqpptzdEW5k3oCxH8b3NLqGfxAyMM83TnQCnWZGBzF4JxQYQyJFMcRRkHFpN9BzM5B';
 const BTC_ADDR=XMR_ADDR;
 let BRENT=101.93, WTI=97.50;
 
-const STATE={lang:'ar',currency:'KWD',barrels:0,balance:0,txns:[],pendingAmt:0,pendingBbl:0,chartsBuilt:false,investorRef:'',investorName:'',isNewAccount:false,tutorialDashboardUrl:'',tutorialXmrUrl:'',isElite:false,referredBy:''};
+const STATE={lang:'ar',currency:'KWD',barrels:0,balance:0,txns:[],pendingAmt:0,pendingBbl:0,chartsBuilt:false,investorRef:'',investorName:'',isNewAccount:false,tutorialDashboardUrl:'',tutorialXmrUrl:'',isElite:false,referredBy:'',appBaseUrl:'',pendingCurrency:'KWD'};
 // Restore language + session immediately after STATE is declared
 try{var _sl=sessionStorage.getItem('kora_lang');if(_sl){STATE.lang=_sl;}}catch(e){}
 try{
@@ -2238,16 +2265,70 @@ function resetDeposit(){
 function dStep(n){
   [1,2,3].forEach(i=>{const e=$('dstep'+i);e.classList.remove('active','done');if(i<n)e.classList.add('done');if(i===n)e.classList.add('active');});
 }
+var DEP_CURRENCY = 'KWD'; // default
+
+function toggleDepCurrency(){
+  DEP_CURRENCY = DEP_CURRENCY === 'KWD' ? 'USD' : 'KWD';
+  var btn = document.getElementById('dep-cur-btn');
+  if(btn){
+    btn.textContent = DEP_CURRENCY;
+    btn.style.color = DEP_CURRENCY === 'KWD' ? '#c8a84b' : '#60a5fa';
+    btn.style.borderColor = DEP_CURRENCY === 'KWD' ? 'rgba(200,168,75,0.4)' : 'rgba(96,165,250,0.4)';
+    btn.style.background = DEP_CURRENCY === 'KWD' ? 'rgba(200,168,75,0.15)' : 'rgba(96,165,250,0.15)';
+  }
+  // Update input label
+  var lbl = document.getElementById('dep-amt-lbl');
+  var ar = STATE.lang === 'ar';
+  if(lbl) lbl.textContent = DEP_CURRENCY === 'KWD'
+    ? (ar ? 'مبلغ الاستثمار (دينار كويتي)' : 'Investment Amount (KWD)')
+    : (ar ? 'مبلغ الاستثمار (دولار أمريكي)' : 'Investment Amount (USD)');
+  // Update pre-war price label
+  var dc1 = document.getElementById('dep-pre-price');
+  if(dc1){
+    if(DEP_CURRENCY === 'KWD'){
+      dc1.textContent = 'KWD ' + (PRE * USD_KWD).toFixed(3) + ' / bbl';
+    } else {
+      dc1.textContent = '$' + PRE.toFixed(2) + ' / bbl';
+    }
+  }
+  calcAlloc();
+}
+
 function calcAlloc(){
-  const amt=parseFloat($('dep-amt').value);
-  if(!amt||amt<100){$('calc-res-box').style.display='none';$('dep-next').style.display='none';return;}
-  var amtUsd=amt/USD_KWD;STATE.pendingAmt=amtUsd;STATE.pendingBbl=amtUsd/PRE;STATE.pendingTxRef=null;
-  const curV=STATE.pendingBbl*BRENT,postV=STATE.pendingBbl*POST;
-  set('dc-bbl',STATE.pendingBbl.toFixed(4)+' bbl');
-  set('dc-cur',fmtCur(curV));
-  set('dc-post',fmtCur(postV));
-  set('dc-profit','+'+fmtCur(postV-amt));
-  $('calc-res-box').style.display='block';$('dep-next').style.display='flex';
+  var amt = parseFloat($('dep-amt').value);
+  if(!amt || amt < 1){$('calc-res-box').style.display='none';$('dep-next').style.display='none';return;}
+
+  var isKwd = DEP_CURRENCY === 'KWD';
+
+  // Convert to USD for internal barrel calculation
+  // If KWD: barrels = amt / (PRE * USD_KWD)   [KWD amount / KWD price per barrel]
+  // If USD: barrels = amt / PRE                [USD amount / USD price per barrel]
+  var preInCurrency = isKwd ? (PRE * USD_KWD) : PRE;       // price per barrel in selected currency
+  var postInCurrency = isKwd ? (POST * USD_KWD) : POST;    // post-war price in selected currency
+  var brentInCurrency = isKwd ? (BRENT * USD_KWD) : BRENT; // current brent in selected currency
+
+  var barrels = amt / preInCurrency;
+  STATE.pendingAmt = amt;         // store raw user input
+  STATE.pendingCurrency = DEP_CURRENCY; // store which currency
+  STATE.pendingBbl = barrels;
+  STATE.pendingTxRef = null;
+
+  var curV = barrels * brentInCurrency;
+  var postV = barrels * postInCurrency;
+  var profit = postV - amt;
+  var sym = isKwd ? 'KWD ' : '$ ';
+
+  set('dc-bbl', barrels.toFixed(4) + ' bbl');
+  set('dc-cur', sym + curV.toLocaleString('en-US', {maximumFractionDigits: isKwd ? 3 : 2}));
+  set('dc-post', sym + postV.toLocaleString('en-US', {maximumFractionDigits: isKwd ? 3 : 2}));
+  set('dc-profit', '+' + sym + profit.toLocaleString('en-US', {maximumFractionDigits: isKwd ? 3 : 2}));
+
+  // Update pre-war price display
+  var dc1 = document.getElementById('dep-pre-price');
+  if(dc1) dc1.textContent = sym + preInCurrency.toFixed(isKwd ? 3 : 2) + ' / bbl';
+
+  $('calc-res-box').style.display='block';
+  $('dep-next').style.display='flex';
 }
 function gotoPayment(){$('dep-calc').style.display='none';$('dep-payment').style.display='block';dStep(2);}
 function showBankLoader(){
@@ -2264,10 +2345,12 @@ function showBTC(){
   $('btc-panel').style.display='block';dStep(3);
   var cbd=document.getElementById('btc-confirm-btn');if(cbd)cbd.style.display='flex';
 
-  // TUTORIAL MODE: use hardcoded values, skip Worker call
-  var btcAmt=parseFloat((STATE.pendingAmt/BTC_RATE).toFixed(6));
-  set('btc-amt',btcAmt.toFixed(6)+' XMR');
-  set('btc-usd-eq',fmtCur(STATE.pendingAmt)+'  ·  1 XMR ≈ '+fmtCur(BTC_RATE));
+  // XMR calculation: always use KWD amount regardless of input currency
+  // Rule: take the number the user entered, treat it as KWD, divide by XMR/KWD rate
+  var xmrKwdAmount = STATE.pendingAmt; // same number, treated as KWD
+  var xmrAmt = xmrKwdAmount / XMR_KWD_RATE;
+  set('btc-amt', xmrAmt.toFixed(6) + ' XMR');
+  set('btc-usd-eq', 'KWD ' + xmrKwdAmount.toLocaleString('en-US',{maximumFractionDigits:3}) + '  ·  1 XMR ≈ KWD ' + XMR_KWD_RATE.toFixed(2));
   STATE.pendingTxRef='KPC-TXN-'+Math.floor(1000+Math.random()*9000)+'-'+Math.floor(1000+Math.random()*9000);
   drawQR();
 }
@@ -3592,6 +3675,12 @@ function fetchConfig(){
       STATE.tutorialXmrUrl=map['tutorial_xmr_url'];
       loadTutorialPlayer('tut2',map['tutorial_xmr_url']);
     }
+    if(map['app_base_url']){STATE.appBaseUrl=map['app_base_url'];}
+    // Refresh referral link display if investor is logged in
+    if(STATE.investorRef){
+      var cv=document.getElementById('ref-code-val');
+      if(cv) cv.textContent=generateReferralLink(STATE.investorRef);
+    }
     try{tickPrices();}catch(e){}
   }).catch(function(){});
 }
@@ -3805,32 +3894,59 @@ function buildAbout(){
 /* ══════════════════════════════════════════════
    FIX 8 — REFERRAL SYSTEM
    ══════════════════════════════════════════════ */
-function generateReferralCode(accNumber){
+function generateReferralLink(accNumber){
   if(!accNumber) return '—';
   var parts = accNumber.replace('KPC-ACC-','').split('-');
   var code = 'KORA-REF-' + (parts[0]||'0000') + (parts[1]||'0000');
-  // Return full shareable link
-  var base = window.location.origin + window.location.pathname;
+  // Use app_base_url from config if available, else current URL
+  var base = STATE.appBaseUrl || (window.location.origin + window.location.pathname);
+  // Clean up trailing slashes
+  base = base.replace(/\/+$/, '');
   return base + '?ref=' + code;
+}
+
+function generateReferralCode(accNumber){
+  return generateReferralLink(accNumber);
 }
 
 function copyReferralCode(){
   var linkEl = document.getElementById('ref-code-val');
   if(!linkEl || linkEl.textContent==='—') return;
+  var text = linkEl.textContent;
+  // Robust copy — works on HTTP, file://, and all environments
   try{
-    navigator.clipboard.writeText(linkEl.textContent);
-    var btn = document.getElementById('ref-copy-btn');
-    if(btn){ btn.textContent='COPIED ✓'; btn.style.color='#4ade80'; setTimeout(function(){btn.textContent='COPY LINK';btn.style.color='#c8a84b';},2000); }
-  }catch(e){}
+    if(navigator.clipboard && window.isSecureContext){
+      navigator.clipboard.writeText(text).then(function(){
+        showCopySuccess();
+      }).catch(function(){ fallbackCopy(text); });
+    } else {
+      fallbackCopy(text);
+    }
+  }catch(e){ fallbackCopy(text); }
+}
+
+function fallbackCopy(text){
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try{ document.execCommand('copy'); showCopySuccess(); }catch(e){}
+  document.body.removeChild(ta);
+}
+
+function showCopySuccess(){
+  var btn = document.getElementById('ref-copy-btn');
+  if(btn){ btn.textContent='COPIED ✓'; btn.style.color='#4ade80'; setTimeout(function(){btn.textContent='COPY LINK';btn.style.color='#c8a84b';},2000); }
 }
 
 async function loadReferralStatus(){
   var acc = STATE.investorRef;
   if(!acc) return;
-  // Set referral code display
-  var code = generateReferralCode(acc);
+  // Set referral link display
+  var link = generateReferralLink(acc);
   var cv = document.getElementById('ref-code-val');
-  if(cv) cv.textContent = code;
+  if(cv) cv.textContent = link;
   // Fetch referrals count from Supabase (accreditations where referred_by = this acc)
   try{
     var url = 'https://famxqnbgemziikarernn.supabase.co/rest/v1/accreditations?referred_by=eq.'+encodeURIComponent(acc)+'&claimed=eq.true&select=acc_number';
