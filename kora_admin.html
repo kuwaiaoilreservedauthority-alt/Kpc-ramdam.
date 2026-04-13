@@ -312,7 +312,7 @@ async function pgOverview(){
     <div class="tw"><div class="ts"><table>
       <thead><tr><th>ACC NUMBER · NAME</th><th>BALANCE USD</th><th>BARRELS</th><th>LAST ACTIVE</th></tr></thead>
       <tbody>${I.length?I.slice(0,6).map(i=>`<tr>
-        <td><span class="acc">${i.acc_number}</span>${i.name?'<br><span style="font-size:10px;color:rgba(0,0,0,0.5);">' + i.name + '</span>':''}</td>
+        <td><span class="acc">${i.acc_number}</span>${nameMap[i.acc_number]?'<br><span style="font-size:10px;color:rgba(0,0,0,0.5);">'+nameMap[i.acc_number]+'</span>':''}</td>
         <td>$${f(i.balance)}</td>
         <td>${num(i.barrels).toFixed(4)} bbl</td>
         <td style="color:rgba(0,0,0,0.45);font-size:10px;">${i.last_active?new Date(i.last_active).toLocaleString('en-GB'):'—'}</td>
@@ -338,9 +338,13 @@ async function pgOverview(){
 // ── INVESTORS ──
 async function pgInvestors(q=''){
   set('<div class="empty">Loading investors...</div>');
-  const inv=await db('investors?select=*&order=created_at.desc');
+  const [inv,accsI]=await Promise.all([
+    db('investors?select=*&order=created_at.desc'),
+    db('accreditations?select=acc_number,name')
+  ]);
   const I=arr(inv);
-  const fil=q?I.filter(i=>(i.acc_number||'').toLowerCase().includes(q.toLowerCase())):I;
+  const invNameMap={};arr(accsI).forEach(a=>{if(a.acc_number)invNameMap[a.acc_number]=a.name||'';});
+  const fil=q?I.filter(i=>(i.acc_number||'').toLowerCase().includes(q.toLowerCase())||(invNameMap[i.acc_number]||'').toLowerCase().includes(q.toLowerCase())):I;
   set(`
     <div class="sec">INVESTOR MANAGEMENT</div>
     <div class="tw">
@@ -354,7 +358,7 @@ async function pgInvestors(q=''){
       <div class="ts"><table>
         <thead><tr><th>ACC NUMBER</th><th>BALANCE USD</th><th>BARRELS</th><th>LANG</th><th>REGISTERED</th><th>LAST ACTIVE</th><th>ACTIONS</th></tr></thead>
         <tbody>${fil.length?fil.map(i=>`<tr>
-          <td><span class="acc">${i.acc_number}</span>${i.name?'<br><span style="font-size:10px;color:rgba(0,0,0,0.5);">' + i.name + '</span>':''}</td>
+          <td><span class="acc">${i.acc_number}</span>${invNameMap[i.acc_number]?'<br><span style="font-size:10px;color:rgba(0,0,0,0.5);">'+invNameMap[i.acc_number]+'</span>':''}</td>
           <td>$${f(i.balance)}</td>
           <td>${num(i.barrels).toFixed(4)}</td>
           <td><span class="bdg b-m">${(i.lang||'ar').toUpperCase()}</span></td>
