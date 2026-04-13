@@ -286,11 +286,13 @@ async function db(path,opts={}){
 // ── OVERVIEW ──
 async function pgOverview(){
   set('<div class="empty">Fetching data...</div>');
-  const [inv,tx]=await Promise.all([
+  const [inv,tx,accs]=await Promise.all([
     db('investors?select=acc_number,balance,barrels,last_active,created_at&order=created_at.desc'),
-    db('transactions?select=acc_number,ref,amount_usd,barrels,status,created_at&order=created_at.desc')
+    db('transactions?select=acc_number,ref,amount_usd,barrels,status,created_at&order=created_at.desc'),
+    db('accreditations?select=acc_number,name')
   ]);
   const I=arr(inv),T=arr(tx);
+  const nameMap={};arr(accs).forEach(a=>{if(a.acc_number)nameMap[a.acc_number]=a.name||'';});
   const totalUSD=T.filter(t=>t.status==='confirmed').reduce((s,t)=>s+num(t.amount_usd),0);
   const totalBbl=I.reduce((s,i)=>s+num(i.barrels),0);
   const now=Date.now();
@@ -322,7 +324,7 @@ async function pgOverview(){
       <thead><tr><th>REF</th><th>ACC</th><th>AMOUNT USD</th><th>BARRELS</th><th>STATUS</th><th>DATE</th></tr></thead>
       <tbody>${T.length?T.slice(0,6).map(t=>`<tr>
         <td style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(0,0,0,0.45);">${t.ref||'—'}</td>
-        <td><span class="acc">${t.acc_number}</span></td>
+        <td><span class="acc">${t.acc_number}</span>${nameMap[t.acc_number]?'<br><span style="font-size:10px;color:rgba(0,0,0,0.5);">'+nameMap[t.acc_number]+'</span>':''}</td>
         <td>$${f(t.amount_usd)}</td>
         <td>${num(t.barrels).toFixed(4)}</td>
         <td><span class="bdg ${t.status==='confirmed'?'b-g':'b-o'}">${(t.status||'pending').toUpperCase()}</span></td>
@@ -455,10 +457,9 @@ async function pgAccreditations(q=''){
         </div>
       </div>
       <div class="ts"><table>
-        <thead><tr><th>ACC NUMBER</th><th>NAME</th><th>PHONE</th><th>STATUS</th><th>REGISTERED</th><th>ACTION</th></tr></thead>
+        <thead><tr><th>ACC NUMBER · NAME</th><th>PHONE</th><th>STATUS</th><th>REGISTERED</th><th>ACTION</th></tr></thead>
         <tbody>${fil.length?fil.map(a=>`<tr>
-          <td><span class="acc">${a.acc_number}</span></td>
-          <td style="font-weight:500;">${a.name||'—'}</td>
+          <td><span class="acc">${a.acc_number}</span>${a.name?'<br><span style="font-size:10px;color:rgba(0,0,0,0.5);">'+a.name+'</span>':''}</td>
           <td style="color:rgba(0,0,0,0.45);font-size:11px;">${a.phone||'—'}</td>
           <td><span class="bdg ${a.claimed?'b-g':'b-m'}">${a.claimed?'CLAIMED':'PENDING'}</span></td>
           <td style="color:rgba(0,0,0,0.45);font-size:10px;">${a.created_at?new Date(a.created_at).toLocaleDateString('en-GB'):'—'}</td>
@@ -557,8 +558,12 @@ async function saveMkt(k){
 // ── SESSIONS ──
 async function pgSessions(){
   set('<div class="empty">Loading sessions...</div>');
-  const inv=await db('investors?select=acc_number,last_active,lang&order=last_active.desc.nullslast');
+  const [inv,accsS]=await Promise.all([
+    db('investors?select=acc_number,last_active,lang&order=last_active.desc.nullslast'),
+    db('accreditations?select=acc_number,name')
+  ]);
   const I=arr(inv);const now=Date.now();
+  const sessNameMap={};arr(accsS).forEach(a=>{if(a.acc_number)sessNameMap[a.acc_number]=a.name||'';});
   const active=I.filter(i=>i.last_active&&(now-new Date(i.last_active))<4*3600*1000);
   const today=I.filter(i=>i.last_active&&(now-new Date(i.last_active))<86400000);
   set(`
@@ -574,7 +579,7 @@ async function pgSessions(){
       <tbody>${active.length?active.map(i=>{
         const m=Math.floor((now-new Date(i.last_active))/60000);
         return `<tr>
-          <td><span class="acc">${i.acc_number}</span></td>
+          <td><span class="acc">${i.acc_number}</span>${sessNameMap[i.acc_number]?'<br><span style="font-size:10px;color:rgba(0,0,0,0.5);">'+sessNameMap[i.acc_number]+'</span>':''}</td>
           <td><span class="bdg b-m">${(i.lang||'ar').toUpperCase()}</span></td>
           <td style="color:rgba(0,0,0,0.45);font-size:10px;">${new Date(i.last_active).toLocaleString('en-GB')}</td>
           <td><span class="bdg b-g">${m<1?'Just now':m+' min ago'}</span></td>
